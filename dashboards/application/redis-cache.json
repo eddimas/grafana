@@ -1,540 +1,228 @@
 {
   "id": null,
-  "title": "Redis Cache Monitoring",
-  "tags": [
-    "cache",
-    "redis",
-    "immich"
-  ],
-  "style": "dark",
+  "title": "Redis Cache Monitoring (Immich)",
+  "tags": ["cache", "redis", "immich"],
   "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "annotations": { "list": [] },
+  "templating": { "list": [] },
   "panels": [
     {
       "id": 1,
-      "title": "Redis Status",
+      "title": "Redis Pods Up (immich-dev)",
       "type": "stat",
       "targets": [
         {
-          "expr": "redis_up{namespace=\"immich-dev\"}",
-          "legendFormat": "Redis Status"
+          "refId": "A",
+          "expr": "sum(up{namespace=\"immich-dev\", pod=~\".*redis.*\"}) or vector(0)",
+          "legendFormat": "Pods Up"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "mappings": [
             {
+              "type": "value",
               "options": {
-                "0": {
-                  "text": "DOWN"
-                },
-                "1": {
-                  "text": "UP"
-                }
-              },
-              "type": "value"
+                "0": { "text": "DOWN" },
+                "1": { "text": "UP" }
+              }
             }
           ],
           "thresholds": {
+            "mode": "absolute",
             "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
+              { "color": "red", "value": 0 },
+              { "color": "green", "value": 1 }
             ]
           }
         }
       },
       "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto"
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      }
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
     },
     {
       "id": 2,
-      "title": "Connected Clients",
+      "title": "Redis CPU (cores)",
       "type": "stat",
       "targets": [
         {
-          "expr": "redis_connected_clients{namespace=\"immich-dev\"}",
-          "legendFormat": "Clients"
+          "refId": "A",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"immich-dev\", pod=~\".*redis.*\", image!=\"\"}[5m])) or vector(0)",
+          "legendFormat": "CPU"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 80
-              },
-              {
-                "color": "red",
-                "value": 100
-              }
-            ]
-          }
+          "unit": "cores",
+          "min": 0
         }
       },
       "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        }
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 0
-      }
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 }
     },
     {
       "id": 3,
-      "title": "Memory Usage",
+      "title": "Redis Memory (bytes)",
       "type": "stat",
       "targets": [
         {
-          "expr": "redis_memory_used_bytes{job=\"redis\"}",
-          "legendFormat": "Memory Used"
+          "refId": "A",
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"immich-dev\", pod=~\".*redis.*\", image!=\"\"}) or vector(0)",
+          "legendFormat": "Mem"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "bytes",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 50000000
-              },
-              {
-                "color": "red",
-                "value": 100000000
-              }
-            ]
-          }
+          "min": 0
         }
       },
       "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        }
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 0
-      }
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 }
     },
     {
       "id": 4,
-      "title": "Cache Hit Rate",
+      "title": "Redis Network I/O (bytes/s)",
       "type": "stat",
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{namespace=\"immich-dev\", pod=~\".*redis.*\", container=\"redis\"}[5m]) * 100",
-          "legendFormat": "Redis CPU Usage"
+          "refId": "A",
+          "expr": "(sum(rate(container_network_receive_bytes_total{namespace=\"immich-dev\", pod=~\".*redis.*\"}[5m])) + sum(rate(container_network_transmit_bytes_total{namespace=\"immich-dev\", pod=~\".*redis.*\"}[5m]))) or vector(0)",
+          "legendFormat": "Net"
         }
       ],
       "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "green",
-                "value": 90
-              }
-            ]
-          }
-        }
+        "defaults": { "unit": "Bps", "min": 0 }
       },
       "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        }
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 0
-      }
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 }
     },
     {
       "id": 5,
-      "title": "Commands Per Second",
+      "title": "CPU Over Time (Redis pods)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "rate(container_network_receive_packets_total{namespace=\"immich-dev\", pod=~\".*redis.*\"}[5m])",
-          "legendFormat": "Network Packets/sec"
+          "refId": "A",
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"immich-dev\", pod=~\".*redis.*\", image!=\"\"}[5m]))",
+          "legendFormat": "{{pod}}"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "barAlignment": 0,
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "spanNulls": false,
-            "insertNulls": false,
-            "showPoints": "never",
-            "pointSize": 5,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 4
-      }
+      "fieldConfig": { "defaults": { "unit": "cores", "min": 0 } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 }
     },
     {
       "id": 6,
-      "title": "Memory Usage Over Time",
+      "title": "Memory Over Time (Redis pods)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "redis_memory_used_bytes{job=\"redis\"}",
-          "legendFormat": "Memory Used"
-        },
-        {
-          "expr": "redis_memory_max_bytes{job=\"redis\"}",
-          "legendFormat": "Memory Limit"
+          "refId": "A",
+          "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"immich-dev\", pod=~\".*redis.*\", image!=\"\"})",
+          "legendFormat": "{{pod}}"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "barAlignment": 0,
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "spanNulls": false,
-            "insertNulls": false,
-            "showPoints": "never",
-            "pointSize": 5,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      }
+      "fieldConfig": { "defaults": { "unit": "bytes", "min": 0 } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 }
     },
     {
       "id": 7,
-      "title": "Cache Performance",
+      "title": "Redis Cache Hit/Miss (requires redis exporter)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "irate(redis_keyspace_hits_total{job=\"redis\"}[5m])",
-          "legendFormat": "Cache Hits/sec"
+          "refId": "A",
+          "expr": "sum(irate(redis_keyspace_hits_total{namespace=\"immich-dev\"}[5m]))",
+          "legendFormat": "hits/sec"
         },
         {
-          "expr": "irate(redis_keyspace_misses_total{job=\"redis\"}[5m])",
-          "legendFormat": "Cache Misses/sec"
+          "refId": "B",
+          "expr": "sum(irate(redis_keyspace_misses_total{namespace=\"immich-dev\"}[5m]))",
+          "legendFormat": "misses/sec"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "barAlignment": 0,
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "spanNulls": false,
-            "insertNulls": false,
-            "showPoints": "never",
-            "pointSize": 5,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 12
-      }
+      "fieldConfig": { "defaults": { "unit": "ops", "min": 0 } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 }
     },
     {
       "id": 8,
-      "title": "Network I/O",
+      "title": "Network Over Time (Redis pods)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "irate(redis_net_input_bytes_total{job=\"redis\"}[5m])",
-          "legendFormat": "Network In"
+          "refId": "A",
+          "expr": "sum by (pod) (rate(container_network_receive_bytes_total{namespace=\"immich-dev\", pod=~\".*redis.*\"}[5m]))",
+          "legendFormat": "{{pod}} RX"
         },
         {
-          "expr": "irate(redis_net_output_bytes_total{job=\"redis\"}[5m])",
-          "legendFormat": "Network Out"
+          "refId": "B",
+          "expr": "sum by (pod) (rate(container_network_transmit_bytes_total{namespace=\"immich-dev\", pod=~\".*redis.*\"}[5m]))",
+          "legendFormat": "{{pod}} TX"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "barAlignment": 0,
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "spanNulls": false,
-            "insertNulls": false,
-            "showPoints": "never",
-            "pointSize": 5,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            }
-          }
-        }
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 12
-      }
+      "fieldConfig": { "defaults": { "unit": "Bps", "min": 0 } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 }
     },
     {
       "id": 9,
-      "title": "Key Information",
+      "title": "Redis Keys (requires redis exporter)",
       "type": "table",
       "targets": [
         {
-          "expr": "redis_db_keys{job=\"redis\"}",
+          "refId": "A",
+          "expr": "redis_db_keys{namespace=\"immich-dev\"}",
           "legendFormat": "{{db}}"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": false,
-          "reducer": [
-            "sum"
-          ],
-          "countRows": false
-        }
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 20
-      }
+      "options": { "showHeader": true },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 20 }
     },
     {
       "id": 10,
-      "title": "Evicted Keys",
+      "title": "Evicted Keys (1h) (requires redis exporter)",
       "type": "stat",
       "targets": [
         {
-          "expr": "increase(redis_evicted_keys_total{job=\"redis\"}[1h])",
-          "legendFormat": "Evicted Keys (1h)"
+          "refId": "A",
+          "expr": "sum(increase(redis_evicted_keys_total{namespace=\"immich-dev\"}[1h])) or vector(0)",
+          "legendFormat": "evicted"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "min": 0,
+          "color": { "mode": "thresholds" },
           "thresholds": {
+            "mode": "absolute",
             "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 100
-              },
-              {
-                "color": "red",
-                "value": 1000
-              }
+              { "color": "green", "value": 0 },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 1000 }
             ]
           }
         }
       },
       "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        }
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
       },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 20
-      }
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 20 }
     }
-  ],
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "templating": {
-    "list": []
-  },
-  "annotations": {
-    "list": []
-  },
-  "refresh": "30s",
-  "schemaVersion": 27,
-  "version": 0,
-  "links": []
+  ]
 }
