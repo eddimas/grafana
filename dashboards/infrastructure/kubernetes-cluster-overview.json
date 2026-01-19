@@ -1,118 +1,261 @@
 {
   "id": null,
-  "title": "Kubernetes Cluster Overview",
-  "tags": ["kubernetes"],
+  "title": "Kubernetes Applications Dashboard (v12)",
+  "tags": ["kubernetes", "applications"],
   "timezone": "browser",
   "schemaVersion": 30,
   "version": 1,
   "refresh": "30s",
-    "panels": [
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
       {
-        "id": 1,
-        "title": "Cluster Nodes",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "count(kube_node_info)",
-            "legendFormat": "Total Nodes"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 0,
-          "y": 0
-        }
+        "name": "app_ns",
+        "label": "App Namespaces",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+        "query": {
+          "query": "label_values(kube_pod_info{namespace!~\"kube-.*|default|kube-public|kube-node-lease|local-path-storage\"}, namespace)",
+          "refId": "AppNs"
+        },
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": ".*" }
       },
       {
-        "id": 2,
-        "title": "Total Pods",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "count(kube_pod_info)",
-            "legendFormat": "Total Pods"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 6,
-          "y": 0
-        }
-      },
-      {
-        "id": 3,
-        "title": "Running Pods",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "count(kube_pod_status_phase{phase=\"Running\"})",
-            "legendFormat": "Running"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 12,
-          "y": 0
-        }
-      },
-      {
-        "id": 4,
-        "title": "Pod Resources by Namespace",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "sum(kube_pod_container_resource_limits{resource=\"cpu\"}) by (namespace)",
-            "legendFormat": "{{namespace}} - CPU Limits"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 8
-        }
-      },
-      {
-        "id": 5,
-        "title": "Pod Restart Count by Namespace",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "sum(increase(kube_pod_container_status_restarts_total[1h])) by (namespace)",
-            "legendFormat": "{{namespace}}"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 8
-        }
-      },
-      {
-        "id": 6,
-        "title": "Pod Status by Namespace",
-        "type": "table",
-        "targets": [
-          {
-            "expr": "count(kube_pod_status_phase) by (namespace, phase)",
-            "legendFormat": "{{namespace}} - {{phase}}"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 24,
-          "x": 0,
-          "y": 16
+        "name": "infra_ns",
+        "label": "Infra Namespaces",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+        "query": {
+          "query": "label_values(kube_pod_info{namespace=~\"grafana-dev|prometheus-dev|loki-dev|alloy-dev\"}, namespace)",
+          "refId": "InfraNs"
+        },
+        "multi": true,
+        "includeAll": true,
+        "allValue": "grafana-dev|prometheus-dev|loki-dev|alloy-dev",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "grafana-dev|prometheus-dev|loki-dev|alloy-dev"
         }
       }
-    ],
-    "time": {
-      "from": "now-1h",
-      "to": "now"
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Application Namespaces (count)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by (namespace) (kube_pod_info{namespace!~\"kube-.*|default|kube-public|kube-node-lease|local-path-storage\"}))",
+          "legendFormat": "App Namespaces"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": { "min": 0 },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "title": "Immich (Running Pods)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_status_phase{namespace=\"immich-dev\", phase=\"Running\"}) or vector(0)",
+          "legendFormat": "Running Pods"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 }
+    },
+    {
+      "id": 3,
+      "title": "Kong (Running Pods)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_status_phase{namespace=\"kong\", phase=\"Running\"}) or vector(0)",
+          "legendFormat": "Running Pods"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 }
+    },
+    {
+      "id": 4,
+      "title": "Infra (Running Pods)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_status_phase{namespace=~\"grafana-dev|prometheus-dev|loki-dev|alloy-dev\", phase=\"Running\"}) or vector(0)",
+          "legendFormat": "Monitoring Pods"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "min": 0 }, "overrides": [] },
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 }
+    },
+    {
+      "id": 5,
+      "title": "Running Pods by Selected App Namespaces",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count by (namespace) (kube_pod_status_phase{namespace=~\"$app_ns\", phase=\"Running\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "min": 0 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 }
+    },
+    {
+      "id": 6,
+      "title": "Deployment Replicas (Desired vs Available) - Selected Apps",
+      "type": "table",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "kube_deployment_status_replicas{namespace=~\"$app_ns\"}",
+          "legendFormat": "{{namespace}}/{{deployment}} desired"
+        },
+        {
+          "refId": "B",
+          "expr": "kube_deployment_status_replicas_available{namespace=~\"$app_ns\"}",
+          "legendFormat": "{{namespace}}/{{deployment}} available"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 }
+    },
+    {
+      "id": 7,
+      "title": "Container Restarts (Last 1h) - Selected Apps",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (increase(kube_pod_container_status_restarts_total{namespace=~\"$app_ns\"}[1h]))",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "min": 0 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 }
+    },
+    {
+      "id": 8,
+      "title": "Services - Selected Apps",
+      "type": "table",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "kube_service_info{namespace=~\"$app_ns\"}",
+          "legendFormat": "{{namespace}}/{{service}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 }
+    },
+    {
+      "id": 9,
+      "title": "CPU Limits by App Namespace",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (kube_pod_container_resource_limits{namespace=~\"$app_ns\", resource=\"cpu\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "min": 0, "unit": "cores" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 22 }
+    },
+    {
+      "id": 10,
+      "title": "Memory Limits by App Namespace",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (kube_pod_container_resource_limits{namespace=~\"$app_ns\", resource=\"memory\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "min": 0, "unit": "bytes" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 22 }
+    },
+    {
+      "id": 11,
+      "title": "ConfigMaps & Secrets (Selected Apps)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "PROM_UID_HERE" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_configmap_info{namespace=~\"$app_ns\"})",
+          "legendFormat": "ConfigMaps"
+        },
+        {
+          "refId": "B",
+          "expr": "count(kube_secret_info{namespace=~\"$app_ns\"})",
+          "legendFormat": "Secrets"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "min": 0 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 22 }
     }
-  }
-
+  ]
+}
