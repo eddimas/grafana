@@ -1,303 +1,399 @@
 {
-  "dashboard": {
-    "id": null,
-    "title": "PVC Storage Monitoring",
-    "tags": ["storage", "pvc", "kubernetes", "immich"],
-    "style": "dark",
-    "timezone": "browser",
-    "panels": [
-      {
-        "id": 1,
-        "title": "PVC Status Overview",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "kube_persistentvolumeclaim_status_phase{namespace=\"immich-dev\", phase=\"Bound\"}",
-            "legendFormat": "{{persistentvolumeclaim}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [
-              {
-                "options": {
-                  "0": { "text": "UNBOUND" },
-                  "1": { "text": "BOUND" }
+  "id": null,
+  "title": "PVC Storage Monitoring",
+  "tags": [
+    "storage",
+    "pvc",
+    "kubernetes",
+    "immich"
+  ],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "PVC Status Overview",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "kube_persistentvolumeclaim_status_phase{namespace=\"immich-dev\", phase=\"Bound\"}",
+          "legendFormat": "{{persistentvolumeclaim}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "UNBOUND"
                 },
-                "type": "value"
-              }
-            ],
-            "thresholds": {
-              "steps": [
-                { "color": "red", "value": null },
-                { "color": "green", "value": 1 }
-              ]
-            }
-          }
-        },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
-          "colorMode": "background"
-        },
-        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
-      },
-      {
-        "id": 2,
-        "title": "Storage Used",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
-            "legendFormat": "{{persistentvolumeclaim}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "GB",
-            "thresholds": {
-              "steps": [
-                { "color": "green", "value": null },
-                { "color": "yellow", "value": 70 },
-                { "color": "red", "value": 85 }
-              ]
-            }
-          }
-        },
-        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 }
-      },
-      {
-        "id": 3,
-        "title": "Storage Capacity",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
-            "legendFormat": "{{persistentvolumeclaim}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "GB"
-          }
-        },
-        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 }
-      },
-      {
-        "id": 4,
-        "title": "Storage Utilization %",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "(kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"}) * 100",
-            "legendFormat": "{{persistentvolumeclaim}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "min": 0,
-            "max": 100,
-            "thresholds": {
-              "steps": [
-                { "color": "green", "value": null },
-                { "color": "yellow", "value": 70 },
-                { "color": "red", "value": 85 }
-              ]
-            }
-          }
-        },
-        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 }
-      },
-      {
-        "id": 5,
-        "title": "Storage Usage Over Time",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
-            "legendFormat": "Used - {{persistentvolumeclaim}}"
-          },
-          {
-            "expr": "kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
-            "legendFormat": "Capacity - {{persistentvolumeclaim}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "GB",
-            "custom": {
-              "drawStyle": "line",
-              "lineWidth": 2,
-              "fillOpacity": 10
-            }
-          }
-        },
-        "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "table",
-            "placement": "bottom",
-            "showLegend": true
-          }
-        },
-        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 }
-      },
-      {
-        "id": 6,
-        "title": "Available Inodes",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "kubelet_volume_stats_inodes_free{namespace=\"immich-dev\"}",
-            "legendFormat": "Free Inodes - {{persistentvolumeclaim}}"
-          },
-          {
-            "expr": "kubelet_volume_stats_inodes{namespace=\"immich-dev\"}",
-            "legendFormat": "Total Inodes - {{persistentvolumeclaim}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "custom": {
-              "drawStyle": "line",
-              "lineWidth": 2,
-              "fillOpacity": 10
-            }
-          }
-        },
-        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 }
-      },
-      {
-        "id": 7,
-        "title": "PVC Information Table",
-        "type": "table",
-        "targets": [
-          {
-            "expr": "kube_persistentvolumeclaim_info{namespace=\"immich-dev\"}",
-            "legendFormat": "{{persistentvolumeclaim}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
+                "1": {
+                  "text": "BOUND"
+                }
               },
-              "inspect": false
+              "type": "value"
             }
-          },
-          "overrides": []
-        },
-        "options": {
-          "showHeader": true,
-          "cellHeight": "sm",
-          "footer": {
-            "show": false,
-            "reducer": ["sum"],
-            "countRows": false
+          ],
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
           }
-        },
-        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 }
+        }
       },
-      {
-        "id": 8,
-        "title": "Storage I/O Operations",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "rate(container_fs_reads_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
-            "legendFormat": "Read Ops - {{pod}}"
-          },
-          {
-            "expr": "rate(container_fs_writes_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
-            "legendFormat": "Write Ops - {{pod}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ops",
-            "custom": {
-              "drawStyle": "line",
-              "lineWidth": 2,
-              "fillOpacity": 10
-            }
-          }
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
         },
-        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 }
+        "colorMode": "background"
       },
-      {
-        "id": 9,
-        "title": "Storage Throughput",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "rate(container_fs_reads_bytes_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
-            "legendFormat": "Read Bytes/sec - {{pod}}"
-          },
-          {
-            "expr": "rate(container_fs_writes_bytes_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
-            "legendFormat": "Write Bytes/sec - {{pod}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "Bps",
-            "custom": {
-              "drawStyle": "line",
-              "lineWidth": 2,
-              "fillOpacity": 10
-            }
-          }
-        },
-        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 }
-      },
-      {
-        "id": 10,
-        "title": "Photo Library Growth Rate",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "rate(kubelet_volume_stats_used_bytes{namespace=\"immich-dev\", persistentvolumeclaim=~\".*library.*\"}[24h]) * 86400 / 1024 / 1024",
-            "legendFormat": "Daily Growth"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "MB",
-            "color": {
-              "mode": "thresholds"
-            },
-            "thresholds": {
-              "steps": [
-                { "color": "green", "value": null },
-                { "color": "yellow", "value": 500 },
-                { "color": "red", "value": 2000 }
-              ]
-            }
-          }
-        },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          }
-        },
-        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 }
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
       }
-    ],
-    "time": {
-      "from": "now-6h",
-      "to": "now"
     },
-    "refresh": "1m",
-    "schemaVersion": 27,
-    "version": 0
-  }
+    {
+      "id": 2,
+      "title": "Storage Used",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "legendFormat": "{{persistentvolumeclaim}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "GB",
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Storage Capacity",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "legendFormat": "{{persistentvolumeclaim}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "GB"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Storage Utilization %",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "(kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"}) * 100",
+          "legendFormat": "{{persistentvolumeclaim}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "id": 5,
+      "title": "Storage Usage Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "legendFormat": "Used - {{persistentvolumeclaim}}"
+        },
+        {
+          "expr": "kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "legendFormat": "Capacity - {{persistentvolumeclaim}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "GB",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      }
+    },
+    {
+      "id": 6,
+      "title": "Available Inodes",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "kubelet_volume_stats_inodes_free{namespace=\"immich-dev\"}",
+          "legendFormat": "Free Inodes - {{persistentvolumeclaim}}"
+        },
+        {
+          "expr": "kubelet_volume_stats_inodes{namespace=\"immich-dev\"}",
+          "legendFormat": "Total Inodes - {{persistentvolumeclaim}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      }
+    },
+    {
+      "id": 7,
+      "title": "PVC Information Table",
+      "type": "table",
+      "targets": [
+        {
+          "expr": "kube_persistentvolumeclaim_info{namespace=\"immich-dev\"}",
+          "legendFormat": "{{persistentvolumeclaim}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      }
+    },
+    {
+      "id": 8,
+      "title": "Storage I/O Operations",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(container_fs_reads_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
+          "legendFormat": "Read Ops - {{pod}}"
+        },
+        {
+          "expr": "rate(container_fs_writes_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
+          "legendFormat": "Write Ops - {{pod}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      }
+    },
+    {
+      "id": 9,
+      "title": "Storage Throughput",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(container_fs_reads_bytes_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
+          "legendFormat": "Read Bytes/sec - {{pod}}"
+        },
+        {
+          "expr": "rate(container_fs_writes_bytes_total{namespace=\"immich-dev\", pod=~\"immich-.*\"}[5m])",
+          "legendFormat": "Write Bytes/sec - {{pod}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      }
+    },
+    {
+      "id": 10,
+      "title": "Photo Library Growth Rate",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "rate(kubelet_volume_stats_used_bytes{namespace=\"immich-dev\", persistentvolumeclaim=~\".*library.*\"}[24h]) * 86400 / 1024 / 1024",
+          "legendFormat": "Daily Growth"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "MB",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      }
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "schemaVersion": 27,
+  "version": 0
 }
