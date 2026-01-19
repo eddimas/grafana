@@ -1,0 +1,347 @@
+{
+  "id": null,
+  "title": "Kubernetes Cluster Stats",
+    "tags": ["kubernetes", "cluster"],
+    "timezone": "browser", 
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Cluster Node Count",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_node_info)",
+            "legendFormat": "Total Nodes"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 0,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 1 },
+                { "color": "green", "value": 2 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Total Pods",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_info)",
+            "legendFormat": "Total Pods"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 4,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Running Pods",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{phase=\"Running\"})",
+            "legendFormat": "Running"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 8,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Pending Pods",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{phase=\"Pending\"})",
+            "legendFormat": "Pending"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 12,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 1 },
+                { "color": "red", "value": 5 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Failed Pods",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{phase=\"Failed\"})",
+            "legendFormat": "Failed"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 16,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "red", "value": 1 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Total Namespaces",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(count by (namespace)(kube_pod_info))",
+            "legendFormat": "Namespaces"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 20,
+          "y": 0
+        }
+      },
+      {
+        "id": 7,
+        "title": "Pod Status by Namespace",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{phase=\"Running\"}) by (namespace)",
+            "legendFormat": "{{namespace}} - Running"
+          },
+          {
+            "expr": "count(kube_pod_status_phase{phase=\"Pending\"}) by (namespace)",
+            "legendFormat": "{{namespace}} - Pending"
+          },
+          {
+            "expr": "count(kube_pod_status_phase{phase=\"Failed\"}) by (namespace)",
+            "legendFormat": "{{namespace}} - Failed"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Pod Count"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Deployment Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "kube_deployment_status_replicas",
+            "legendFormat": "{{namespace}}/{{deployment}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 9,
+        "title": "Node Status",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "kube_node_status_condition{condition=\"Ready\", status=\"true\"}",
+            "legendFormat": "Ready Nodes"
+          },
+          {
+            "expr": "kube_node_status_condition{condition=\"Ready\", status=\"false\"}",
+            "legendFormat": "Not Ready Nodes"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 14
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "max": 10,
+            "label": "Node Count"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Container Restarts by Namespace",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(increase(kube_pod_container_status_restarts_total[1h])) by (namespace)",
+            "legendFormat": "{{namespace}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 14
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Restart Count (1h)"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Pod Resource Limits",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_resource_limits{resource=\"cpu\"}) by (namespace)",
+            "legendFormat": "CPU Limits - {{namespace}}"
+          },
+          {
+            "expr": "sum(kube_pod_container_resource_limits{resource=\"memory\"}) by (namespace)",
+            "legendFormat": "Memory Limits - {{namespace}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 14
+        }
+      },
+      {
+        "id": 12,
+        "title": "Services and Endpoints",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "count(kube_service_info) by (namespace)",
+            "legendFormat": "{{namespace}} - Services"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "id": 13,
+        "title": "Persistent Volumes",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_persistentvolume_info)",
+            "legendFormat": "Total PVs"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 22
+        }
+      },
+      {
+        "id": 14,
+        "title": "ConfigMaps & Secrets",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_configmap_info)",
+            "legendFormat": "ConfigMaps"
+          },
+          {
+            "expr": "count(kube_secret_info)",
+            "legendFormat": "Secrets"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 22
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    }
+}
+

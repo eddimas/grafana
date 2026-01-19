@@ -1,0 +1,118 @@
+{
+  "id": null,
+  "title": "Kubernetes Cluster Overview",
+  "tags": ["kubernetes"],
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Cluster Nodes",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_node_info)",
+            "legendFormat": "Total Nodes"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Total Pods",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_info)",
+            "legendFormat": "Total Pods"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Running Pods",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{phase=\"Running\"})",
+            "legendFormat": "Running"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Pod Resources by Namespace",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_resource_limits{resource=\"cpu\"}) by (namespace)",
+            "legendFormat": "{{namespace}} - CPU Limits"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Pod Restart Count by Namespace",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(increase(kube_pod_container_status_restarts_total[1h])) by (namespace)",
+            "legendFormat": "{{namespace}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 6,
+        "title": "Pod Status by Namespace",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase) by (namespace, phase)",
+            "legendFormat": "{{namespace}} - {{phase}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 16
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    }
+  }
+

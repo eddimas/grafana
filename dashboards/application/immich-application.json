@@ -1,0 +1,297 @@
+{
+  "id": null,
+  "title": "Kubernetes Applications Dashboard",
+    "tags": ["kubernetes", "applications"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Application Namespaces",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(count by (namespace)(kube_pod_info{namespace!~\"kube-.*|default\"}))",
+            "legendFormat": "App Namespaces"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Whoami App Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{namespace=\"whoami-dev\", phase=\"Running\"})",
+            "legendFormat": "Running Pods"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Kong App Status", 
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{namespace=\"kong-dev\", phase=\"Running\"})",
+            "legendFormat": "Running Pods"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Infrastructure Apps Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{namespace=~\"grafana-dev|prometheus-dev\", phase=\"Running\"})",
+            "legendFormat": "Monitoring Pods"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Pod Availability by Application",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{namespace=\"whoami-dev\", phase=\"Running\"})",
+            "legendFormat": "Whoami - Running"
+          },
+          {
+            "expr": "count(kube_pod_status_phase{namespace=\"kong-dev\", phase=\"Running\"})",
+            "legendFormat": "Kong - Running"
+          },
+          {
+            "expr": "count(kube_pod_status_phase{namespace=\"grafana-dev\", phase=\"Running\"})",
+            "legendFormat": "Grafana - Running"
+          },
+          {
+            "expr": "count(kube_pod_status_phase{namespace=\"prometheus-dev\", phase=\"Running\"})",
+            "legendFormat": "Prometheus - Running"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Pod Count"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Deployment Replicas Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "kube_deployment_status_replicas{namespace!~\"kube-.*\"}",
+            "legendFormat": "{{namespace}}/{{deployment}} - Desired"
+          },
+          {
+            "expr": "kube_deployment_status_replicas_available{namespace!~\"kube-.*\"}",
+            "legendFormat": "{{namespace}}/{{deployment}} - Available"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 7,
+        "title": "Application Restart Count (Last Hour)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"whoami-dev\"}[1h])) by (pod)",
+            "legendFormat": "Whoami - {{pod}}"
+          },
+          {
+            "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"kong-dev\"}[1h])) by (pod)",
+            "legendFormat": "Kong - {{pod}}"
+          },
+          {
+            "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"grafana-dev\"}[1h])) by (pod)",
+            "legendFormat": "Grafana - {{pod}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 14
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Restart Count"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Service Status by Application",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "kube_service_info{namespace!~\"kube-.*|default\"}",
+            "legendFormat": "{{namespace}}/{{service}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 14
+        }
+      },
+      {
+        "id": 9,
+        "title": "Pod Memory Limits by App",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_resource_limits{namespace=\"whoami-dev\", resource=\"memory\"}) by (namespace)",
+            "legendFormat": "Whoami Memory Limit"
+          },
+          {
+            "expr": "sum(kube_pod_container_resource_limits{namespace=\"kong-dev\", resource=\"memory\"}) by (namespace)",
+            "legendFormat": "Kong Memory Limit"
+          },
+          {
+            "expr": "sum(kube_pod_container_resource_limits{namespace=\"grafana-dev\", resource=\"memory\"}) by (namespace)",
+            "legendFormat": "Grafana Memory Limit"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 22
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Memory (bytes)"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Pod CPU Limits by App",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_resource_limits{namespace=\"whoami-dev\", resource=\"cpu\"}) by (namespace)",
+            "legendFormat": "Whoami CPU Limit"
+          },
+          {
+            "expr": "sum(kube_pod_container_resource_limits{namespace=\"kong-dev\", resource=\"cpu\"}) by (namespace)",
+            "legendFormat": "Kong CPU Limit"
+          },
+          {
+            "expr": "sum(kube_pod_container_resource_limits{namespace=\"grafana-dev\", resource=\"cpu\"}) by (namespace)",
+            "legendFormat": "Grafana CPU Limit"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 22
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "CPU (cores)"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "ConfigMaps & Secrets by App",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_configmap_info{namespace!~\"kube-.*|default\"})",
+            "legendFormat": "App ConfigMaps"
+          },
+          {
+            "expr": "count(kube_secret_info{namespace!~\"kube-.*|default\"})",
+            "legendFormat": "App Secrets"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 22
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    }
+}
+

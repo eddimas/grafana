@@ -1,0 +1,413 @@
+{
+  "id": null,
+  "title": "Kong API Gateway Stats",
+  "tags": ["kong", "api"],
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Total Prometheus Targets",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "count(up)",
+          "legendFormat": "Total Targets"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "green", "value": 5 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Active Namespaces Monitored",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "count(count by (kubernetes_namespace)(up{kubernetes_namespace!=\"\"}))",
+          "legendFormat": "Monitored Namespaces"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "green", "value": 3 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Kong Manual Status Check",
+      "type": "text",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "options": {
+        "content": "**Kong is deployed but not monitored by Prometheus**\n\n**Kong Status:**\n- Namespace: `kong`\n- Pod: Running\n- Admin API: `kong-admin.kong.svc.cluster.local:8001`\n- Proxy: `kong-proxy.kong.svc.cluster.local:80`\n\n**Issue**: Kong namespace not included in Prometheus service discovery"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Kong Metrics Setup Status",
+      "type": "text",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "options": {
+        "content": "**Kong Prometheus Plugin Required**\n\nTo enable full Kong metrics, run:\n\n`kubectl exec -n kong kong-pod -- kong config set prometheus_metrics on`\n\nOr configure via Kong Admin API"
+      }
+    },
+    {
+      "id": 5,
+      "title": "Currently Monitored Namespaces",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "count by (kubernetes_namespace)(up{kubernetes_namespace!=\"\"})",
+          "legendFormat": "{{kubernetes_namespace}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "yAxes": [
+        {
+          "min": 0,
+          "label": "Target Count"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Prometheus Service Discovery",
+      "type": "table",
+      "targets": [
+        {
+          "expr": "up",
+          "legendFormat": "{{job}} - {{instance}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      }
+    },
+    {
+      "id": 7,
+      "title": "Overall Service Endpoints Health",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "up{job=\"kubernetes-service-endpoints\"}",
+          "legendFormat": "{{kubernetes_namespace}}/{{kubernetes_name}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "yAxes": [
+        {
+          "min": 0,
+          "max": 1,
+          "label": "Endpoint Health"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Kubernetes Pods Health",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "up{job=\"kubernetes-pods\"}",
+          "legendFormat": "{{kubernetes_namespace}} - {{kubernetes_pod_name}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "yAxes": [
+        {
+          "min": 0,
+          "max": 1,
+          "label": "Pod Health"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Kong Configuration Guide",
+      "type": "text",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "options": {
+        "content": "# Kong Monitoring Setup\n\n## Current Issue\nKong namespace is **not being monitored** by Prometheus. Only these namespaces are monitored:\n- `kube-system`\n- `prometheus-dev` \n- `traefik-v2`\n\n## Solution Steps\n\n### 1. Configure Prometheus to Monitor Kong Namespace\nAdd Kong namespace to Prometheus service discovery configuration.\n\n### 2. Enable Kong Prometheus Plugin (DB-less mode)\nCreate Kong configuration file with prometheus plugin:\n\n```yaml\n_format_version: \"2.1\"\nplugins:\n- name: prometheus\n  config:\n    status_code_metrics: true\n    latency_metrics: true\n    bandwidth_metrics: true\n```\n\n### 3. Configure Kong Services for Metrics\n```bash\n# Check Kong admin API is accessible\nkubectl exec -n kong deployment/kong -- curl localhost:8001\n\n# Test Kong proxy\nkubectl port-forward -n kong svc/kong-proxy 8000:80\ncurl localhost:8000\n```\n\n**Kong Services:**\n- **Admin API**: `kong-admin.kong.svc.cluster.local:8001`\n- **Proxy**: `kong-proxy.kong.svc.cluster.local:80`\n- **Metrics** (after setup): `kong-proxy.kong.svc.cluster.local:80/metrics`"
+      }
+    }
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  }
+}
+    "panels": [
+      {
+        "id": 1,
+        "title": "Kong Services Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(up{job=~\".*kong.*\"})",
+            "legendFormat": "Kong Instances"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Kong Pod Availability",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_status_phase{namespace=\"kong-dev\", phase=\"Running\"})",
+            "legendFormat": "Running Pods"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Kong Service Endpoints",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_service_info{namespace=\"kong-dev\"})",
+            "legendFormat": "Services"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Kong Pod Restarts",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"kong-dev\"}[1h])",
+            "legendFormat": "{{pod}} - {{container}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Restarts"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Kong Deployment Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "kube_deployment_status_replicas{namespace=\"kong-dev\"}",
+            "legendFormat": "{{deployment}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        },
+        "columns": [
+          {
+            "text": "Deployment",
+            "value": "deployment"
+          },
+          {
+            "text": "Desired Replicas",
+            "value": "Value"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Kong Network Traffic (HTTP Status Codes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(kong_http_status{service=~\".*\"}[5m])) by (code)",
+            "legendFormat": "Status {{code}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 14
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Requests/sec"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "API Response Times",
+        "type": "graph", 
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(kong_latency_bucket[5m])) by (le))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(kong_latency_bucket[5m])) by (le))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Response Time (ms)"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Kong Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_resource_limits{namespace=\"kong-dev\", resource=\"memory\"}) by (pod)",
+            "legendFormat": "Memory Limit - {{pod}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 22
+        },
+        "yAxes": [
+          {
+            "min": 0,
+            "label": "Memory (bytes)"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    }
+}
+
