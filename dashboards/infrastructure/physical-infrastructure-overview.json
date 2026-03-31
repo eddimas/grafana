@@ -505,18 +505,43 @@
     },
     {
       "id": 13,
-      "title": "Uptime",
-      "type": "timeseries",
+      "title": "Load Average (15m)",
+      "type": "stat",
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_time_seconds{instance=~\"$instance\"} - node_boot_time_seconds{instance=~\"$instance\"})",
+          "expr": "max by (instance) (node_load15{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) or label_replace(max by (job) (kernel_all_load{job=\"pcp-minisforum\", instid=\"15\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 4
+              }
+            ]
+          },
           "min": 0
         }
       },
