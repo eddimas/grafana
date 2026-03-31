@@ -1,0 +1,520 @@
+{
+  "id": null,
+  "uid": "physical-infra-overview",
+  "title": "Physical Infrastructure Overview",
+  "tags": [
+    "infrastructure",
+    "hardware",
+    "raspberry",
+    "node-exporter",
+    "pcp"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 42,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "label": "Host",
+        "type": "query",
+        "query": {
+          "query": "label_values(up{job=~\"node-exporter|pcp-minisforum\"}, instance)",
+          "refId": "Host"
+        },
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ".*"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Hosts Up",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(up{job=~\"node-exporter|pcp-minisforum\", instance=~\"$instance\"}) or vector(0)",
+          "legendFormat": "up"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "CPU Usage %",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)) or (100 - (avg by (instance) (pcp_kernel_all_cpu_idle{instance=~\"$instance\"}) * 100))",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Memory Usage %",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"}))) or ((1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Root Filesystem Usage %",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}))",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "id": 5,
+      "title": "CPU Usage Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{instance}}"
+        },
+        {
+          "refId": "B",
+          "expr": "100 - (avg by (instance) (pcp_kernel_all_cpu_idle{instance=~\"$instance\"}) * 100)",
+          "legendFormat": "{{instance}} (pcp)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "id": 6,
+      "title": "Memory Usage Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"}))",
+          "legendFormat": "{{instance}}"
+        },
+        {
+          "refId": "B",
+          "expr": "(1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100",
+          "legendFormat": "{{instance}} (pcp)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      }
+    },
+    {
+      "id": 7,
+      "title": "CPU by Core",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 - (avg by (instance, cpu) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{instance}} cpu{{cpu}}"
+        },
+        {
+          "refId": "B",
+          "expr": "100 - (pcp_kernel_percpu_cpu_idle{instance=~\"$instance\"} * 100)",
+          "legendFormat": "{{instance}} cpu{{cpu}} (pcp)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      }
+    },
+    {
+      "id": 8,
+      "title": "Load Average",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_load1{instance=~\"$instance\"}",
+          "legendFormat": "{{instance}} load1"
+        },
+        {
+          "refId": "B",
+          "expr": "node_load5{instance=~\"$instance\"}",
+          "legendFormat": "{{instance}} load5"
+        },
+        {
+          "refId": "C",
+          "expr": "node_load15{instance=~\"$instance\"}",
+          "legendFormat": "{{instance}} load15"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      }
+    },
+    {
+      "id": 9,
+      "title": "Memory Available",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_memory_MemAvailable_bytes{instance=~\"$instance\"}",
+          "legendFormat": "{{instance}}"
+        },
+        {
+          "refId": "B",
+          "expr": "pcp_mem_freemem{instance=~\"$instance\"}",
+          "legendFormat": "{{instance}} (pcp)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      }
+    },
+    {
+      "id": 10,
+      "title": "Root Filesystem Free",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 21
+      }
+    },
+    {
+      "id": 11,
+      "title": "Disk I/O Throughput",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_disk_read_bytes_total{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "{{instance}} read"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_disk_written_bytes_total{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "{{instance}} write"
+        },
+        {
+          "refId": "C",
+          "expr": "rate(pcp_disk_all_read{instance=~\"$instance\"}[5m])",
+          "legendFormat": "{{instance}} read (pcp)"
+        },
+        {
+          "refId": "D",
+          "expr": "rate(pcp_disk_all_write{instance=~\"$instance\"}[5m])",
+          "legendFormat": "{{instance}} write (pcp)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 21
+      }
+    },
+    {
+      "id": 12,
+      "title": "Network Traffic",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{instance=~\"$instance\", device!=\"lo\"}[5m]))",
+          "legendFormat": "{{instance}} rx"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{instance=~\"$instance\", device!=\"lo\"}[5m]))",
+          "legendFormat": "{{instance}} tx"
+        },
+        {
+          "refId": "C",
+          "expr": "sum by (instance) (rate(pcp_network_interface_in_bytes{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "{{instance}} rx (pcp)"
+        },
+        {
+          "refId": "D",
+          "expr": "sum by (instance) (rate(pcp_network_interface_out_bytes{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "{{instance}} tx (pcp)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      }
+    },
+    {
+      "id": 13,
+      "title": "Uptime",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_time_seconds{instance=~\"$instance\"} - node_boot_time_seconds{instance=~\"$instance\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      }
+    }
+  ]
+}
