@@ -46,7 +46,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"} - node_boot_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) or label_replace(max by (job) (kernel_all_uptime{job=\"pcp-minisforum\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "((max by (instance) (node_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"} - node_boot_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) * on (instance) max by (instance) (up{job=\"node-exporter\", instance=~\"raspberrypi-dev|raspberrypi-prod\"})) or on (instance) (0 * max by (instance) (up{job=\"node-exporter\", instance=~\"raspberrypi-dev|raspberrypi-prod\"}))) or label_replace(((max by (instance) (kernel_all_uptime{job=\"pcp-minisforum\"}) * on (instance) max by (instance) (up{job=\"pcp-minisforum\"})) or on (instance) (0 * max by (instance) (up{job=\"pcp-minisforum\"}))), \"instance\", \"minisforum-server\", \"instance\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -63,7 +63,30 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "min": 0
+          "min": 0,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
         }
       },
       "gridPos": {
