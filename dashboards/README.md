@@ -12,11 +12,9 @@ dashboards/
 ├── infrastructure/      # Infrastructure monitoring
 │   ├── cluster-stats.json        # Kubernetes cluster overview
 │   ├── kubernetes-cluster-overview.json  # Main cluster dashboard
-│   ├── pvc-storage.json          # Storage monitoring
-│   └── loki-logs.json           # Log aggregation (if available)
-├── business/            # Business logic monitoring
-│   ├── kong-api-gateway.json     # API Gateway monitoring
-│   └── kong-api-analytics.json   # API Analytics (if available)
+│   └── pvc-storage.json          # Storage monitoring
+├── business/            # Reserved for business dashboards
+│   └── .gitkeep
 ├── provisioning/        # Grafana provisioning config
 │   └── dashboards.yml            # Dashboard provider configuration
 └── README.md           # This file
@@ -29,7 +27,7 @@ dashboards/
 3. **Folder Organization**: Dashboards are organized into folders in Grafana UI:
    - **Applications**: Immich app, Redis cache monitoring
    - **Infrastructure**: Kubernetes cluster, storage, logging
-   - **Business**: Kong API gateway and analytics
+   - **Business**: Reserved for future business dashboards
 4. **Real-time Updates**: Changes pushed to git are automatically reflected in Grafana
 
 ## 🛠️ Dashboard Management
@@ -49,7 +47,7 @@ dashboards/
 
 - **Applications**: App-specific monitoring (Immich, Redis, etc.)
 - **Infrastructure**: Cluster, storage, logging infrastructure  
-- **Business**: API gateways, business logic monitoring
+- **Business**: Reserved for future business dashboards
 
 ## ⚙️ Configuration
 
@@ -59,6 +57,20 @@ The provisioning is configured in:
 - Repository: `https://github.com/eddimas/k8s.git`
 - Branch: `master`
 - Path: `dashboards/`
+
+## ✅ Local Validation
+
+Run this before pushing changes:
+
+```bash
+./scripts/validate_dashboards.sh
+```
+
+The validator checks:
+- JSON syntax
+- Provisioning-ready dashboard shape
+- Placeholder datasource UIDs
+- Missing dashboard directories referenced by provisioning
 
 ## 🚀 Benefits
 
@@ -80,7 +92,7 @@ The provisioning is configured in:
 - **PVC Storage**: Persistent volume monitoring and growth tracking
 
 ### Business
-- **Kong API Gateway**: API gateway performance and statistics
+- No business dashboards committed yet
 
 ## 🔄 Migration from ConfigMaps
 
