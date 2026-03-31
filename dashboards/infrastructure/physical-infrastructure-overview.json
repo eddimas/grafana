@@ -515,6 +515,80 @@
         "x": 12,
         "y": 29
       }
+    },
+    {
+      "id": 14,
+      "title": "Temperature Now",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (instance) (node_hwmon_temp_celsius{instance=~\"raspberrypi-dev|raspberrypi-prod\"})",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 75
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 37
+      }
+    },
+    {
+      "id": 15,
+      "title": "Temperature Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (instance) (node_hwmon_temp_celsius{instance=~\"raspberrypi-dev|raspberrypi-prod\"})",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 37
+      }
     }
   ]
 }
