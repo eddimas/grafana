@@ -24,16 +24,16 @@
         "label": "Host",
         "type": "query",
         "query": {
-          "query": "label_values(up{instance=~\"raspberrypi|raspberrypi-dev|raspberrypi-prod\"}, instance)",
+          "query": "label_values(up{instance=~\"minisforum-server|raspberrypi-dev|raspberrypi-prod\"}, instance)",
           "refId": "Host"
         },
         "multi": true,
         "includeAll": true,
-        "allValue": "raspberrypi|raspberrypi-dev|raspberrypi-prod",
+        "allValue": "minisforum-server|raspberrypi-dev|raspberrypi-prod",
         "current": {
           "selected": true,
           "text": "All",
-          "value": "raspberrypi|raspberrypi-dev|raspberrypi-prod"
+          "value": "minisforum-server|raspberrypi-dev|raspberrypi-prod"
         }
       }
     ]
