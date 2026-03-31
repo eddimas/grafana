@@ -16,7 +16,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "kube_persistentvolumeclaim_status_phase{namespace=\"immich-dev\", phase=\"Bound\"}",
+          "expr": "max by (persistentvolumeclaim) (kube_persistentvolumeclaim_status_phase{namespace=\"immich-dev\", phase=\"Bound\"})",
           "legendFormat": "{{persistentvolumeclaim}}"
         }
       ],
@@ -72,7 +72,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "expr": "max by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"}) / 1024 / 1024 / 1024",
           "legendFormat": "{{persistentvolumeclaim}}"
         }
       ],
@@ -110,7 +110,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "expr": "(max by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"}) or max by (persistentvolumeclaim) (kube_persistentvolumeclaim_resource_requests_storage_bytes{namespace=\"immich-dev\"})) / 1024 / 1024 / 1024",
           "legendFormat": "{{persistentvolumeclaim}}"
         }
       ],
@@ -132,7 +132,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "(kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"}) * 100",
+          "expr": "(max by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"}) / clamp_min((max by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"}) or max by (persistentvolumeclaim) (kube_persistentvolumeclaim_resource_requests_storage_bytes{namespace=\"immich-dev\"})), 1)) * 100",
           "legendFormat": "{{persistentvolumeclaim}}"
         }
       ],
@@ -172,11 +172,11 @@
       "type": "timeseries",
       "targets": [
         {
-          "expr": "kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "expr": "max by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{namespace=\"immich-dev\"}) / 1024 / 1024 / 1024",
           "legendFormat": "Used - {{persistentvolumeclaim}}"
         },
         {
-          "expr": "kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"} / 1024 / 1024 / 1024",
+          "expr": "(max by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{namespace=\"immich-dev\"}) or max by (persistentvolumeclaim) (kube_persistentvolumeclaim_resource_requests_storage_bytes{namespace=\"immich-dev\"})) / 1024 / 1024 / 1024",
           "legendFormat": "Capacity - {{persistentvolumeclaim}}"
         }
       ],
@@ -211,11 +211,11 @@
       "type": "timeseries",
       "targets": [
         {
-          "expr": "kubelet_volume_stats_inodes_free{namespace=\"immich-dev\"}",
+          "expr": "max by (persistentvolumeclaim) (kubelet_volume_stats_inodes_free{namespace=\"immich-dev\"})",
           "legendFormat": "Free Inodes - {{persistentvolumeclaim}}"
         },
         {
-          "expr": "kubelet_volume_stats_inodes{namespace=\"immich-dev\"}",
+          "expr": "max by (persistentvolumeclaim) (kubelet_volume_stats_inodes{namespace=\"immich-dev\"})",
           "legendFormat": "Total Inodes - {{persistentvolumeclaim}}"
         }
       ],
@@ -242,7 +242,7 @@
       "type": "table",
       "targets": [
         {
-          "expr": "kube_persistentvolumeclaim_info{namespace=\"immich-dev\"}",
+          "expr": "max by (persistentvolumeclaim, storageclass, volumename) (kube_persistentvolumeclaim_info{namespace=\"immich-dev\"})",
           "legendFormat": "{{persistentvolumeclaim}}"
         }
       ],
@@ -344,7 +344,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "rate(kubelet_volume_stats_used_bytes{namespace=\"immich-dev\", persistentvolumeclaim=~\".*library.*\"}[24h]) * 86400 / 1024 / 1024",
+          "expr": "clamp_min(max by (persistentvolumeclaim) (delta(kubelet_volume_stats_used_bytes{namespace=\"immich-dev\", persistentvolumeclaim=~\".*library.*\"}[24h])), 0) / 1024 / 1024",
           "legendFormat": "Daily Growth"
         }
       ],
