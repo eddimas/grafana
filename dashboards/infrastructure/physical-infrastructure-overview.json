@@ -24,16 +24,16 @@
         "label": "Host",
         "type": "query",
         "query": {
-          "query": "label_values(up{job=~\"node-exporter|pcp-minisforum\"}, instance)",
+          "query": "label_values(up{instance=~\"raspberrypi|raspberrypi-dev|raspberrypi-prod\"}, instance)",
           "refId": "Host"
         },
         "multi": true,
         "includeAll": true,
-        "allValue": ".*",
+        "allValue": "raspberrypi|raspberrypi-dev|raspberrypi-prod",
         "current": {
           "selected": true,
           "text": "All",
-          "value": ".*"
+          "value": "raspberrypi|raspberrypi-dev|raspberrypi-prod"
         }
       }
     ]
@@ -46,7 +46,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(up{job=~\"node-exporter|pcp-minisforum\", instance=~\"$instance\"}) or vector(0)",
+          "expr": "max by (instance) (up{instance=~\"$instance\"}) or vector(0)",
           "legendFormat": "up"
         }
       ],
@@ -143,7 +143,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"}))) or ((1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100)",
+          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"}))) or max by (instance) ((1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100)",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -194,7 +194,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * (1 - (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}))",
+          "expr": "max by (instance) (100 * (1 - (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"})))",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -275,12 +275,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"}))",
+          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"})))",
           "legendFormat": "{{instance}}"
         },
         {
           "refId": "B",
-          "expr": "(1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100",
+          "expr": "max by (instance) ((1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100)",
           "legendFormat": "{{instance}} (pcp)"
         }
       ],
@@ -335,17 +335,17 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "node_load1{instance=~\"$instance\"}",
+          "expr": "max by (instance) (node_load1{instance=~\"$instance\"})",
           "legendFormat": "{{instance}} load1"
         },
         {
           "refId": "B",
-          "expr": "node_load5{instance=~\"$instance\"}",
+          "expr": "max by (instance) (node_load5{instance=~\"$instance\"})",
           "legendFormat": "{{instance}} load5"
         },
         {
           "refId": "C",
-          "expr": "node_load15{instance=~\"$instance\"}",
+          "expr": "max by (instance) (node_load15{instance=~\"$instance\"})",
           "legendFormat": "{{instance}} load15"
         }
       ],
@@ -368,12 +368,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "node_memory_MemAvailable_bytes{instance=~\"$instance\"}",
+          "expr": "max by (instance) (node_memory_MemAvailable_bytes{instance=~\"$instance\"})",
           "legendFormat": "{{instance}}"
         },
         {
           "refId": "B",
-          "expr": "pcp_mem_freemem{instance=~\"$instance\"}",
+          "expr": "max by (instance) (pcp_mem_freemem{instance=~\"$instance\"})",
           "legendFormat": "{{instance}} (pcp)"
         }
       ],
@@ -397,7 +397,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}",
+          "expr": "max by (instance) (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"})",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -499,7 +499,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "node_time_seconds{instance=~\"$instance\"} - node_boot_time_seconds{instance=~\"$instance\"}",
+          "expr": "max by (instance) (node_time_seconds{instance=~\"$instance\"} - node_boot_time_seconds{instance=~\"$instance\"})",
           "legendFormat": "{{instance}}"
         }
       ],
