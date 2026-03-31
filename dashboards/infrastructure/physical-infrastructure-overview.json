@@ -92,7 +92,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", mode=\"idle\"}[5m])) * 100)) or label_replace((100 - (avg by (job) (pcp_kernel_all_cpu_idle{job=\"pcp-minisforum\"}) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", mode=\"idle\"}[5m])) * 100)) or label_replace((100 - (avg by (job) (rate(kernel_all_cpu_idle{job=\"pcp-minisforum\"}[5m])) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -143,7 +143,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"} / node_memory_MemTotal_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"}))) or label_replace(max by (job) ((1 - (pcp_mem_freemem{job=\"pcp-minisforum\"} / pcp_mem_physmem{job=\"pcp-minisforum\"})) * 100), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"} / node_memory_MemTotal_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"}))) or label_replace(max by (job) ((1 - (mem_freemem{job=\"pcp-minisforum\"} / mem_physmem{job=\"pcp-minisforum\"})) * 100), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -250,7 +250,7 @@
         },
         {
           "refId": "B",
-          "expr": "label_replace((100 - (avg by (job) (pcp_kernel_all_cpu_idle{job=\"pcp-minisforum\"}) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace((100 - (avg by (job) (rate(kernel_all_cpu_idle{job=\"pcp-minisforum\"}[5m])) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -280,7 +280,7 @@
         },
         {
           "refId": "B",
-          "expr": "label_replace(max by (job) ((1 - (pcp_mem_freemem{job=\"pcp-minisforum\"} / pcp_mem_physmem{job=\"pcp-minisforum\"})) * 100), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace(max by (job) ((1 - (mem_freemem{job=\"pcp-minisforum\"} / mem_physmem{job=\"pcp-minisforum\"})) * 100), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -310,7 +310,7 @@
         },
         {
           "refId": "B",
-          "expr": "label_replace((100 - (pcp_kernel_percpu_cpu_idle{job=\"pcp-minisforum\"} * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace((100 - (rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\"}[5m]) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}} cpu{{cpu}}"
         }
       ],
@@ -373,7 +373,7 @@
         },
         {
           "refId": "B",
-          "expr": "label_replace(max by (job) (pcp_mem_freemem{job=\"pcp-minisforum\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace(max by (job) (mem_freemem{job=\"pcp-minisforum\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -431,12 +431,12 @@
         },
         {
           "refId": "C",
-          "expr": "label_replace(sum by (job) (rate(pcp_disk_all_read{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace(sum by (job) (rate(disk_all_read_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}} read"
         },
         {
           "refId": "D",
-          "expr": "label_replace(sum by (job) (rate(pcp_disk_all_write{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace(sum by (job) (rate(disk_all_write_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}} write"
         }
       ],
@@ -470,12 +470,12 @@
         },
         {
           "refId": "C",
-          "expr": "label_replace(sum by (job) (rate(pcp_network_interface_in_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace(sum by (job) (rate(network_interface_in_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}} rx"
         },
         {
           "refId": "D",
-          "expr": "label_replace(sum by (job) (rate(pcp_network_interface_out_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace(sum by (job) (rate(network_interface_out_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}} tx"
         }
       ],
