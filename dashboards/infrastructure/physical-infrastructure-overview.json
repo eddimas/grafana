@@ -80,7 +80,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", mode=\"idle\"}[5m])) * 100)) or label_replace((100 - (avg by (job) ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\"}[5m]) / on (job, instance) group_left kernel_all_hz{job=\"pcp-minisforum\"}) * 100))), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", mode=\"idle\"}[5m])) * 100)) or label_replace((100 - (avg by (job) ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\"}[5m]) / 1000) * 100))), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -238,7 +238,7 @@
         },
         {
           "refId": "B",
-          "expr": "label_replace((100 - (avg by (job) ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\"}[5m]) / on (job, instance) group_left kernel_all_hz{job=\"pcp-minisforum\"}) * 100))), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace((100 - (avg by (job) ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\"}[5m]) / 1000) * 100))), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -298,7 +298,7 @@
         },
         {
           "refId": "B",
-          "expr": "label_replace((100 - ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\"}[5m]) / on (job, instance) group_left kernel_all_hz{job=\"pcp-minisforum\"}) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "label_replace((100 - ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\"}[5m]) / 1000) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}} cpu{{cpu}}"
         }
       ],
