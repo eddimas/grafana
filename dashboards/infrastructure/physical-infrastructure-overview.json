@@ -46,8 +46,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (up{instance=~\"$instance\"}) or vector(0)",
-          "legendFormat": "up"
+          "expr": "max by (instance) (up{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) or label_replace(max by (job) (up{job=\"pcp-minisforum\"}), \"instance\", \"minisforum-server\", \"job\", \".*\") or vector(0)",
+          "legendFormat": "{{instance}}"
         }
       ],
       "options": {
@@ -92,7 +92,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)) or (100 - (avg by (instance) (pcp_kernel_all_cpu_idle{instance=~\"$instance\"}) * 100))",
+          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", mode=\"idle\"}[5m])) * 100)) or label_replace((100 - (avg by (job) (pcp_kernel_all_cpu_idle{job=\"pcp-minisforum\"}) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -143,7 +143,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"}))) or max by (instance) ((1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100)",
+          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"} / node_memory_MemTotal_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"}))) or label_replace(max by (job) ((1 - (pcp_mem_freemem{job=\"pcp-minisforum\"} / pcp_mem_physmem{job=\"pcp-minisforum\"})) * 100), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -245,13 +245,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", mode=\"idle\"}[5m])) * 100)",
           "legendFormat": "{{instance}}"
         },
         {
           "refId": "B",
-          "expr": "100 - (avg by (instance) (pcp_kernel_all_cpu_idle{instance=~\"$instance\"}) * 100)",
-          "legendFormat": "{{instance}} (pcp)"
+          "expr": "label_replace((100 - (avg by (job) (pcp_kernel_all_cpu_idle{job=\"pcp-minisforum\"}) * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -275,13 +275,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"})))",
+          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"} / node_memory_MemTotal_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"})))",
           "legendFormat": "{{instance}}"
         },
         {
           "refId": "B",
-          "expr": "max by (instance) ((1 - (pcp_mem_freemem{instance=~\"$instance\"} / pcp_mem_physmem{instance=~\"$instance\"})) * 100)",
-          "legendFormat": "{{instance}} (pcp)"
+          "expr": "label_replace(max by (job) ((1 - (pcp_mem_freemem{job=\"pcp-minisforum\"} / pcp_mem_physmem{job=\"pcp-minisforum\"})) * 100), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -305,13 +305,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 - (avg by (instance, cpu) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)",
+          "expr": "100 - (avg by (instance, cpu) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", mode=\"idle\"}[5m])) * 100)",
           "legendFormat": "{{instance}} cpu{{cpu}}"
         },
         {
           "refId": "B",
-          "expr": "100 - (pcp_kernel_percpu_cpu_idle{instance=~\"$instance\"} * 100)",
-          "legendFormat": "{{instance}} cpu{{cpu}} (pcp)"
+          "expr": "label_replace((100 - (pcp_kernel_percpu_cpu_idle{job=\"pcp-minisforum\"} * 100)), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}} cpu{{cpu}}"
         }
       ],
       "fieldConfig": {
@@ -368,13 +368,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_memory_MemAvailable_bytes{instance=~\"$instance\"})",
+          "expr": "max by (instance) (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\"})",
           "legendFormat": "{{instance}}"
         },
         {
           "refId": "B",
-          "expr": "max by (instance) (pcp_mem_freemem{instance=~\"$instance\"})",
-          "legendFormat": "{{instance}} (pcp)"
+          "expr": "label_replace(max by (job) (pcp_mem_freemem{job=\"pcp-minisforum\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -421,23 +421,23 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (instance) (rate(node_disk_read_bytes_total{instance=~\"$instance\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_disk_read_bytes_total{instance=~\"raspberrypi-dev|raspberrypi-prod\"}[5m]))",
           "legendFormat": "{{instance}} read"
         },
         {
           "refId": "B",
-          "expr": "sum by (instance) (rate(node_disk_written_bytes_total{instance=~\"$instance\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_disk_written_bytes_total{instance=~\"raspberrypi-dev|raspberrypi-prod\"}[5m]))",
           "legendFormat": "{{instance}} write"
         },
         {
           "refId": "C",
-          "expr": "rate(pcp_disk_all_read{instance=~\"$instance\"}[5m])",
-          "legendFormat": "{{instance}} read (pcp)"
+          "expr": "label_replace(sum by (job) (rate(pcp_disk_all_read{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}} read"
         },
         {
           "refId": "D",
-          "expr": "rate(pcp_disk_all_write{instance=~\"$instance\"}[5m])",
-          "legendFormat": "{{instance}} write (pcp)"
+          "expr": "label_replace(sum by (job) (rate(pcp_disk_all_write{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}} write"
         }
       ],
       "fieldConfig": {
@@ -460,23 +460,23 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{instance=~\"$instance\", device!=\"lo\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", device!=\"lo\"}[5m]))",
           "legendFormat": "{{instance}} rx"
         },
         {
           "refId": "B",
-          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{instance=~\"$instance\", device!=\"lo\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{instance=~\"raspberrypi-dev|raspberrypi-prod\", device!=\"lo\"}[5m]))",
           "legendFormat": "{{instance}} tx"
         },
         {
           "refId": "C",
-          "expr": "sum by (instance) (rate(pcp_network_interface_in_bytes{instance=~\"$instance\"}[5m]))",
-          "legendFormat": "{{instance}} rx (pcp)"
+          "expr": "label_replace(sum by (job) (rate(pcp_network_interface_in_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}} rx"
         },
         {
           "refId": "D",
-          "expr": "sum by (instance) (rate(pcp_network_interface_out_bytes{instance=~\"$instance\"}[5m]))",
-          "legendFormat": "{{instance}} tx (pcp)"
+          "expr": "label_replace(sum by (job) (rate(pcp_network_interface_out_bytes{job=\"pcp-minisforum\"}[5m])), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "legendFormat": "{{instance}} tx"
         }
       ],
       "fieldConfig": {
