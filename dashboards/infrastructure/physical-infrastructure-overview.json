@@ -41,12 +41,12 @@
   "panels": [
     {
       "id": 1,
-      "title": "Hosts Up",
+      "title": "Host Uptime",
       "type": "stat",
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (up{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) or label_replace(max by (job) (up{job=\"pcp-minisforum\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
+          "expr": "max by (instance) (node_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"} - node_boot_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) or label_replace(max by (job) (kernel_all_uptime{job=\"pcp-minisforum\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -62,20 +62,8 @@
       },
       "fieldConfig": {
         "defaults": {
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
+          "unit": "s",
+          "min": 0
         }
       },
       "gridPos": {
@@ -194,7 +182,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (100 * (1 - (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"})))",
+          "expr": "max by (instance) (100 * (1 - (node_filesystem_avail_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}))) or label_replace(max by (job) (100 * (filesys_used{job=\"pcp-minisforum\", instid=\"0\"} / filesys_capacity{job=\"pcp-minisforum\", instid=\"0\"})), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -397,7 +385,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"})",
+          "expr": "max by (instance) (node_filesystem_avail_bytes{instance=~\"raspberrypi-dev|raspberrypi-prod\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}) or label_replace(max by (job) (filesys_free{job=\"pcp-minisforum\", instid=\"0\"}), \"instance\", \"minisforum-server\", \"job\", \".*\")",
           "legendFormat": "{{instance}}"
         }
       ],
