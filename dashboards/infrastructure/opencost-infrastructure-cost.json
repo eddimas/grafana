@@ -2,7 +2,7 @@
   "annotations": {
     "list": []
   },
-  "description": "Estimated Kubernetes infrastructure cost in USD using OpenCost allocation metrics and the current on-prem pricing model for the Minisforum homelab node.",
+  "description": "Estimated Kubernetes infrastructure cost in USD using OpenCost allocation metrics, plus temporary electricity estimates based on the current Gexa bill effective rate of 0.2334 USD/kWh and assumed average host power draw.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -349,6 +349,203 @@
         "x": 12,
         "y": 13
       }
+    },
+    {
+      "id": 9,
+      "title": "Estimated Monthly Electricity",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "vector((((35 + 6 + 6) / 1000) * 24 * 30 * 0.2334))",
+          "legendFormat": "Electricity"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 8
+              },
+              {
+                "color": "red",
+                "value": 12
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 21
+      }
+    },
+    {
+      "id": 10,
+      "title": "Allocated + Electricity",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(container_cpu_allocation * 0.0012 * 730) + sum(container_memory_allocation_bytes / 1073741824 * 0.00024 * 730) + sum(pv_hourly_cost * 730)) + vector((((35 + 6 + 6) / 1000) * 24 * 30 * 0.2334))",
+          "legendFormat": "Hybrid"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 12
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 21
+      }
+    },
+    {
+      "id": 11,
+      "title": "Estimated Electricity by Host",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "vector((35 / 1000) * 24 * 30 * 0.2334)",
+          "legendFormat": "minisforum (35W)",
+          "instant": true
+        },
+        {
+          "refId": "B",
+          "expr": "vector((6 / 1000) * 24 * 30 * 0.2334)",
+          "legendFormat": "raspberrypi-prod (6W)",
+          "instant": true
+        },
+        {
+          "refId": "C",
+          "expr": "vector((6 / 1000) * 24 * 30 * 0.2334)",
+          "legendFormat": "raspberrypi-dev (6W)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "decimals": 2
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      }
+    },
+    {
+      "id": 12,
+      "title": "Current Electricity Assumptions",
+      "type": "table",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "vector(0.2334)",
+          "legendFormat": "rate_usd_per_kwh",
+          "instant": true
+        },
+        {
+          "refId": "B",
+          "expr": "vector(35)",
+          "legendFormat": "minisforum_watts",
+          "instant": true
+        },
+        {
+          "refId": "C",
+          "expr": "vector(6)",
+          "legendFormat": "raspberrypi_prod_watts",
+          "instant": true
+        },
+        {
+          "refId": "D",
+          "expr": "vector(6)",
+          "legendFormat": "raspberrypi_dev_watts",
+          "instant": true
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 4
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 26
+      }
     }
   ],
   "refresh": "30s",
@@ -358,7 +555,8 @@
     "infrastructure",
     "cost",
     "opencost",
-    "kubernetes"
+    "kubernetes",
+    "electricity"
   ],
   "templating": {
     "list": [
@@ -388,5 +586,5 @@
   "timezone": "browser",
   "title": "OpenCost Infrastructure Cost",
   "uid": "opencost-infra-cost",
-  "version": 1
+  "version": 2
 }
