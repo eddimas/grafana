@@ -20,6 +20,34 @@
   "templating": {
     "list": [
       {
+        "name": "source",
+        "label": "Source",
+        "type": "custom",
+        "query": "nginx : nginx-access,traefik : traefik-v2/.*,all : nginx-access|traefik-v2/.*",
+        "current": {
+          "selected": true,
+          "text": "all",
+          "value": "nginx-access|traefik-v2/.*"
+        },
+        "options": [
+          {
+            "selected": false,
+            "text": "nginx",
+            "value": "nginx-access"
+          },
+          {
+            "selected": false,
+            "text": "traefik",
+            "value": "traefik-v2/.*"
+          },
+          {
+            "selected": true,
+            "text": "all",
+            "value": "nginx-access|traefik-v2/.*"
+          }
+        ]
+      },
+      {
         "name": "host",
         "label": "Host",
         "type": "query",
@@ -655,14 +683,58 @@
       }
     },
     {
-      "id": 14,
-      "type": "logs",
-      "title": "Live Access Log Stream",
+      "id": 20,
+      "type": "table",
+      "title": "Top Traefik Routers",
       "datasource": "Loki",
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"nginx-access\", host=~\"$host\", method=~\"$method\"}"
+          "expr": "topk(10, sum by (router) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"^[0-9A-Fa-f:.]+ - - \\\\[\" | pattern \"<remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" [$__range])))",
+          "legendFormat": "{{router}}"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 57
+      }
+    },
+    {
+      "id": 21,
+      "type": "table",
+      "title": "Top Traefik Paths",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"^[0-9A-Fa-f:.]+ - - \\\\[\" | pattern \"<remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" [$__range])))",
+          "legendFormat": "{{request}}"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 57
+      }
+    },
+    {
+      "id": 14,
+      "type": "logs",
+      "title": "Selected Source Live Log Stream",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{job=~\"$source\"} |~ \"^[0-9A-Fa-f:.]+ - .*\\\\[\""
         }
       ],
       "options": {
@@ -674,7 +746,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 65
       }
     }
   ]
