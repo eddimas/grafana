@@ -7,14 +7,17 @@ This directory contains Grafana dashboards managed through git-based provisionin
 ```
 dashboards/
 ├── application/          # Application-specific dashboards
-│   ├── immich-application.json    # Immich app monitoring
-│   └── redis-cache.json          # Redis cache performance
+│   ├── immich-application.json
+│   └── redis-cache.json
 ├── infrastructure/      # Infrastructure monitoring
-│   ├── cluster-stats.json        # Kubernetes cluster overview
-│   ├── kubernetes-cluster-overview.json  # Main cluster dashboard
-│   └── pvc-storage.json          # Storage monitoring
-├── business/            # Reserved for business dashboards
-│   └── .gitkeep
+│   ├── cluster-stats.json
+│   ├── grafana-observability.json
+│   ├── kubernetes-cluster-overview.json
+│   ├── physical-infrastructure-overview.json
+│   └── pvc-storage.json
+├── business/            # Business and usage dashboards
+│   ├── .gitkeep
+│   └── business-app-usage-overview.json
 ├── provisioning/        # Grafana provisioning config
 │   └── dashboards.yml            # Dashboard provider configuration
 └── README.md           # This file
@@ -25,9 +28,9 @@ dashboards/
 1. **Git Sync**: A sidecar container (`git-sync`) pulls this repository every 60 seconds
 2. **Auto-provisioning**: Grafana automatically loads dashboards from the git repository
 3. **Folder Organization**: Dashboards are organized into folders in Grafana UI:
-   - **Applications**: Immich app, Redis cache monitoring
-   - **Infrastructure**: Kubernetes cluster, storage, logging
-   - **Business**: Reserved for future business dashboards
+   - **Applications**: App-level dashboards such as Immich and Redis
+   - **Infrastructure**: Kubernetes, Grafana, storage, and physical host monitoring
+   - **Business**: Usage-oriented dashboards such as business app traffic and adoption
 4. **Real-time Updates**: Changes pushed to git are automatically reflected in Grafana
 
 ## 🛠️ Dashboard Management
@@ -47,16 +50,22 @@ dashboards/
 
 - **Applications**: App-specific monitoring (Immich, Redis, etc.)
 - **Infrastructure**: Cluster, storage, logging infrastructure  
-- **Business**: Reserved for future business dashboards
+- **Business**: Usage and business-facing dashboards
 
 ## ⚙️ Configuration
 
 The provisioning is configured in:
 - `/etc/grafana/provisioning/dashboards/dashboard-provisioning.yml`
 - Git sync configured in deployment with 60-second intervals
-- Repository: `https://github.com/eddimas/k8s.git`
-- Branch: `master`
+- Repository: `https://github.com/eddimas/grafana.git`
+- Branch: `main`
 - Path: `dashboards/`
+
+In the running Grafana pod, `git-sync` clones the repository under:
+
+- `/var/lib/grafana/git-dashboards/grafana.git/dashboards/application`
+- `/var/lib/grafana/git-dashboards/grafana.git/dashboards/infrastructure`
+- `/var/lib/grafana/git-dashboards/grafana.git/dashboards/business`
 
 ## ✅ Local Validation
 
@@ -89,10 +98,12 @@ The validator checks:
 ### Infrastructure  
 - **Kubernetes Cluster Overview**: Main cluster monitoring dashboard
 - **Cluster Stats**: Additional cluster statistics and metrics
+- **Grafana Observability**: Grafana internal metrics, API latency, and pod health
+- **Physical Infrastructure Overview**: Raspberry Pi and Minisforum CPU, memory, disk, network, load, uptime, and temperature
 - **PVC Storage**: Persistent volume monitoring and growth tracking
 
 ### Business
-- No business dashboards committed yet
+- **Business App Usage Overview**: App traffic, Immich usage, and business-facing activity trends
 
 ## 🔄 Migration from ConfigMaps
 
