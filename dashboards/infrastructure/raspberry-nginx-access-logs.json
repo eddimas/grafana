@@ -663,6 +663,10 @@
         },
         "layers": [
           {
+            "filterData": {
+              "id": "byRefId",
+              "options": "A"
+            },
             "config": {
               "showLegend": true,
               "style": {
@@ -678,16 +682,21 @@
               }
             },
             "location": {
-              "gazetteer": "countries",
+              "gazetteer": "public/gazetteer/countries.json",
               "lookup": "http_cf_ipcountry",
               "mode": "lookup"
             },
             "name": "Traffic Origins",
+            "opacity": 0.7,
             "tooltip": true,
             "type": "markers"
           }
         ],
+        "tooltip": {
+          "mode": "details"
+        },
         "view": {
+          "allLayers": true,
           "id": "zero",
           "lat": 15,
           "lon": 0,
