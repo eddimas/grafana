@@ -727,6 +727,50 @@
       }
     },
     {
+      "id": 22,
+      "type": "table",
+      "title": "Top Traefik Status Codes",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sort_desc(sum by (status) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"^[0-9A-Fa-f:.]+ - - \\\\[\" | pattern \"<remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" [$__range])))",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 65
+      }
+    },
+    {
+      "id": 23,
+      "type": "table",
+      "title": "Top Traefik Services",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (service_url) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"^[0-9A-Fa-f:.]+ - - \\\\[\" | pattern \"<remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" [$__range])))",
+          "legendFormat": "{{service_url}}"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 65
+      }
+    },
+    {
       "id": 14,
       "type": "logs",
       "title": "Selected Source Live Log Stream",
@@ -746,7 +790,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 73
       }
     }
   ]
