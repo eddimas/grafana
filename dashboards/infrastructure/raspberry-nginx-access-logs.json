@@ -546,7 +546,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|\\\\.env|\\\\.git|/admin|/login|/register|/setup|/sitemap|/vendor/|/\\.well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))"
         }
       ],
       "options": {
@@ -597,7 +597,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|\\\\.env|\\\\.git|/admin|/login|/register|/setup|/sitemap|/vendor/|/\\.well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
+          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
           "legendFormat": "{{request}}"
         }
       ],
