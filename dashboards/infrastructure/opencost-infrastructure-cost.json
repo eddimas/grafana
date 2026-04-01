@@ -1,0 +1,392 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Estimated Kubernetes infrastructure cost in USD using OpenCost allocation metrics and the current on-prem pricing model for the Minisforum homelab node.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Cluster Capacity Monthly Cost",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(max(kube_node_status_capacity_cpu_cores) * 0.0012 * 730) + (max(kube_node_status_capacity_memory_bytes) / 1073741824 * 0.00024 * 730)",
+          "legendFormat": "Capacity"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 15
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Allocated Monthly Cost",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(container_cpu_allocation * 0.0012 * 730) + sum(container_memory_allocation_bytes / 1073741824 * 0.00024 * 730) + sum(pv_hourly_cost * 730)",
+          "legendFormat": "Allocated"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Unallocated Monthly Capacity",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "((max(kube_node_status_capacity_cpu_cores) * 0.0012 * 730) + (max(kube_node_status_capacity_memory_bytes) / 1073741824 * 0.00024 * 730)) - (sum(container_cpu_allocation * 0.0012 * 730) + sum(container_memory_allocation_bytes / 1073741824 * 0.00024 * 730) + sum(pv_hourly_cost * 730))",
+          "legendFormat": "Unallocated"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "OpenCost Target Health",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{job=\"opencost\"}",
+          "legendFormat": "OpenCost"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "max": 1,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                },
+                "1": {
+                  "text": "UP"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "id": 5,
+      "title": "Monthly Cost Breakdown",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(container_cpu_allocation * 0.0012 * 730)",
+          "legendFormat": "CPU",
+          "instant": true
+        },
+        {
+          "refId": "B",
+          "expr": "sum(container_memory_allocation_bytes / 1073741824 * 0.00024 * 730)",
+          "legendFormat": "Memory",
+          "instant": true
+        },
+        {
+          "refId": "C",
+          "expr": "sum(pv_hourly_cost * 730)",
+          "legendFormat": "Storage",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "id": 6,
+      "title": "Monthly Cost by Namespace",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(12, sum by (namespace) (container_cpu_allocation * 0.0012 * 730 + container_memory_allocation_bytes / 1073741824 * 0.00024 * 730))",
+          "legendFormat": "{{namespace}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 5
+      }
+    },
+    {
+      "id": 7,
+      "title": "Top Pods by Estimated Monthly Cost",
+      "type": "table",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(15, sum by (namespace, pod) (container_cpu_allocation{namespace=~\"$namespace\"} * 0.0012 * 730 + container_memory_allocation_bytes{namespace=~\"$namespace\"} / 1073741824 * 0.00024 * 730))",
+          "legendFormat": "{{namespace}} / {{pod}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      }
+    },
+    {
+      "id": 8,
+      "title": "Hourly Burn by Namespace",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (container_cpu_allocation{namespace=~\"$namespace\"} * 0.0012 + container_memory_allocation_bytes{namespace=~\"$namespace\"} / 1073741824 * 0.00024)",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "style": "dark",
+  "tags": [
+    "infrastructure",
+    "cost",
+    "opencost",
+    "kubernetes"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "label": "Namespace",
+        "type": "query",
+        "query": {
+          "query": "label_values(container_cpu_allocation, namespace)",
+          "refId": "Namespace"
+        },
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ".*"
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "OpenCost Infrastructure Cost",
+  "uid": "opencost-infra-cost",
+  "version": 1
+}
