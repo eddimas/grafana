@@ -546,7 +546,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} |~ \"wp-login|xmlrpc|phpunit|\\\\.env|\\\\.git|/admin|/login|/register|/setup|/sitemap|/vendor/|/\\.well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup\" [$__range]))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|\\\\.env|\\\\.git|/admin|/login|/register|/setup|/sitemap|/vendor/|/\\.well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))"
         }
       ],
       "options": {
@@ -597,7 +597,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request=~\".*(wp-login|xmlrpc|phpunit|\\\\.env|\\\\.git|/admin|/login|/register|/setup|/sitemap|/vendor/|/\\.well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
+          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|\\\\.env|\\\\.git|/admin|/login|/register|/setup|/sitemap|/vendor/|/\\.well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -609,6 +609,96 @@
         "w": 18,
         "x": 6,
         "y": 37
+      }
+    },
+    {
+      "id": 17,
+      "type": "table",
+      "title": "Traffic by Country",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sort_desc(sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range])))",
+          "legendFormat": "{{http_cf_ipcountry}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 45
+      }
+    },
+    {
+      "id": 18,
+      "type": "geomap",
+      "title": "Traffic Origin Map",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range]))",
+          "legendFormat": "{{http_cf_ipcountry}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "basemap": {
+          "config": {},
+          "name": "Layer 0",
+          "type": "default"
+        },
+        "controls": {
+          "mouseWheelZoom": true,
+          "showAttribution": true,
+          "showDebug": false,
+          "showMeasure": false,
+          "showScale": false,
+          "showZoom": true
+        },
+        "layers": [
+          {
+            "config": {
+              "showLegend": true,
+              "style": {
+                "color": {
+                  "fixed": "dark-green"
+                },
+                "opacity": 0.8,
+                "size": {
+                  "fixed": 8,
+                  "max": 24,
+                  "min": 4
+                }
+              }
+            },
+            "location": {
+              "gazetteer": "countries",
+              "lookup": "http_cf_ipcountry",
+              "mode": "lookup"
+            },
+            "name": "Traffic Origins",
+            "tooltip": true,
+            "type": "markers"
+          }
+        ],
+        "view": {
+          "id": "zero",
+          "lat": 15,
+          "lon": 0,
+          "zoom": 1
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 45
       }
     },
     {
@@ -631,7 +721,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 53
       }
     }
   ]
