@@ -64,9 +64,9 @@ The provisioning is configured in:
 
 In the running Grafana pod, `git-sync` clones the repository under:
 
-- `/var/lib/grafana/git-dashboards/grafana.git/dashboards/application`
-- `/var/lib/grafana/git-dashboards/grafana.git/dashboards/infrastructure`
-- `/var/lib/grafana/git-dashboards/grafana.git/dashboards/business`
+- `/git/grafana.git/dashboards/application`
+- `/git/grafana.git/dashboards/infrastructure`
+- `/git/grafana.git/dashboards/business`
 
 ## ✅ Local Validation
 
@@ -102,6 +102,7 @@ The validator checks:
 - **AdGuard Home Overview**: DNS filtering health, query volume, blocked traffic, clients, and upstreams
 - **Grafana Observability**: Grafana internal metrics, API latency, and pod health
 - **OpenCost Infrastructure Cost**: Estimated monthly capacity, allocated USD cost, namespace allocation, pod cost leaders, hourly burn, and temporary electricity estimates based on the current Gexa bill effective rate plus assumed host wattage
+  Current temporary electricity assumptions: `minisforum=35W`, `raspberrypi-prod=6W`, `raspberrypi-dev=6W`, `0.2334 USD/kWh`
 - **Raspberry Pi nginx Access Logs**: Access log volume, HTTP status breakdown, top paths, top client IPs, and live logs from Raspberry Pi nginx hosts
 - **Physical Infrastructure Overview**: Raspberry Pi and Minisforum CPU, memory, disk, network, load, uptime, and temperature
 - **PVC Storage**: Persistent volume monitoring and growth tracking
