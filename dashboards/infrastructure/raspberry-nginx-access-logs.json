@@ -512,6 +512,28 @@
       }
     },
     {
+      "id": 19,
+      "type": "table",
+      "title": "Top Suspicious Client IPs",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(15, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
+          "legendFormat": "{{remote_addr}}"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 41
+      }
+    },
+    {
       "id": 16,
       "type": "table",
       "title": "Suspicious Paths",
@@ -528,8 +550,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
+        "w": 16,
+        "x": 8,
         "y": 41
       }
     },
@@ -652,7 +674,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 49
+        "y": 57
       }
     }
   ]
