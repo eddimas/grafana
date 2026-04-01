@@ -1,0 +1,631 @@
+{
+  "id": null,
+  "uid": "adguard-home-overview",
+  "title": "AdGuard Home Overview",
+  "tags": [
+    "infrastructure",
+    "dns",
+    "adguard",
+    "network"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 42,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "server",
+        "label": "Server",
+        "type": "query",
+        "query": {
+          "query": "label_values(adguard_running{job=\"adguard-exporter\"}, server)",
+          "refId": "Server"
+        },
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ".*"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "AdGuard Instances Up",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(max by (server) (adguard_running{job=\"adguard-exporter\", server=~\"$server\"})) or vector(0)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Protection Enabled",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(max by (server) (adguard_protection_enabled{job=\"adguard-exporter\", server=~\"$server\"})) or vector(0)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Disabled"
+                },
+                "1": {
+                  "text": "Enabled"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 4,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Total Queries (24h)",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}) or vector(0)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 9,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Blocked Rate",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * ((sum(adguard_blocked_filtered{job=\"adguard-exporter\", server=~\"$server\"}) + sum(adguard_blocked_safesearch{job=\"adguard-exporter\", server=~\"$server\"}) + sum(adguard_blocked_safebrowsing{job=\"adguard-exporter\", server=~\"$server\"})) / clamp_min(sum(adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}), 1)) or vector(0)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 25
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 14,
+        "y": 0
+      }
+    },
+    {
+      "id": 5,
+      "title": "Scrape Errors (1h)",
+      "type": "stat",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(adguard_scrape_errors_total{job=\"adguard-exporter\", server=~\"$server\"}[1h])) or vector(0)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      }
+    },
+    {
+      "id": 6,
+      "title": "Queries by Server",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}",
+          "legendFormat": "{{server}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "id": 7,
+      "title": "Blocked Rate by Server",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * ((sum by (server) (adguard_blocked_filtered{job=\"adguard-exporter\", server=~\"$server\"}) + sum by (server) (adguard_blocked_safesearch{job=\"adguard-exporter\", server=~\"$server\"}) + sum by (server) (adguard_blocked_safebrowsing{job=\"adguard-exporter\", server=~\"$server\"})) / clamp_min(sum by (server) (adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}), 1))",
+          "legendFormat": "{{server}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 25
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 5
+      }
+    },
+    {
+      "id": 8,
+      "title": "DHCP Leases",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adguard_dhcp_leases{job=\"adguard-exporter\", server=~\"$server\"}",
+          "legendFormat": "{{server}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      }
+    },
+    {
+      "id": 9,
+      "title": "Average DNS Processing Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adguard_avg_processing_time_seconds{job=\"adguard-exporter\", server=~\"$server\"} * 1000",
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      }
+    },
+    {
+      "id": 10,
+      "title": "Blocked Queries by Reason",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(adguard_blocked_filtered{job=\"adguard-exporter\", server=~\"$server\"})",
+          "legendFormat": "Filtered"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(adguard_blocked_safesearch{job=\"adguard-exporter\", server=~\"$server\"})",
+          "legendFormat": "SafeSearch"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(adguard_blocked_safebrowsing{job=\"adguard-exporter\", server=~\"$server\"})",
+          "legendFormat": "SafeBrowsing"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      }
+    },
+    {
+      "id": 11,
+      "title": "Top Queried Domains",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (domain) (adguard_top_queried_domains{job=\"adguard-exporter\", server=~\"$server\"}))",
+          "legendFormat": "{{domain}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 20
+      }
+    },
+    {
+      "id": 12,
+      "title": "Top Blocked Domains",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (domain) (adguard_top_blocked_domains{job=\"adguard-exporter\", server=~\"$server\"}))",
+          "legendFormat": "{{domain}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 8,
+        "y": 20
+      }
+    },
+    {
+      "id": 13,
+      "title": "Top Clients",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (client) (adguard_top_clients{job=\"adguard-exporter\", server=~\"$server\"}))",
+          "legendFormat": "{{client}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 20
+      }
+    },
+    {
+      "id": 14,
+      "title": "Top Upstreams by Avg Response Time",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, adguard_top_upstreams_avg_response_time_seconds{job=\"adguard-exporter\", server=~\"$server\"} * 1000)",
+          "legendFormat": "{{upstream}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      }
+    },
+    {
+      "id": 15,
+      "title": "Top Upstreams by Query Volume",
+      "type": "bargauge",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, adguard_top_upstreams{job=\"adguard-exporter\", server=~\"$server\"})",
+          "legendFormat": "{{upstream}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      }
+    }
+  ]
+}

@@ -11,6 +11,7 @@ dashboards/
 │   └── redis-cache.json
 ├── infrastructure/      # Infrastructure monitoring
 │   ├── cluster-stats.json
+│   ├── adguard-home-overview.json
 │   ├── grafana-observability.json
 │   ├── kubernetes-cluster-overview.json
 │   ├── physical-infrastructure-overview.json
@@ -98,6 +99,7 @@ The validator checks:
 ### Infrastructure  
 - **Kubernetes Cluster Overview**: Main cluster monitoring dashboard
 - **Cluster Stats**: Additional cluster statistics and metrics
+- **AdGuard Home Overview**: DNS filtering health, query volume, blocked traffic, clients, and upstreams
 - **Grafana Observability**: Grafana internal metrics, API latency, and pod health
 - **Physical Infrastructure Overview**: Raspberry Pi and Minisforum CPU, memory, disk, network, load, uptime, and temperature
 - **PVC Storage**: Persistent volume monitoring and growth tracking
