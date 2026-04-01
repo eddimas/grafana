@@ -121,10 +121,6 @@
               {
                 "color": "yellow",
                 "value": 1
-              },
-              {
-                "color": "red",
-                "value": 10
               }
             ]
           }
@@ -240,6 +236,23 @@
           "color": {
             "mode": "palette-classic"
           },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          },
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "smooth",
@@ -276,6 +289,19 @@
           "color": {
             "mode": "palette-classic"
           },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              }
+            ]
+          },
           "custom": {
             "drawStyle": "bars",
             "lineInterpolation": "linear",
@@ -311,6 +337,23 @@
           "min": 0,
           "color": {
             "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
           },
           "custom": {
             "drawStyle": "bars",
