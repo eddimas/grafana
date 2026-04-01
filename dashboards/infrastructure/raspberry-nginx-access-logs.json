@@ -267,7 +267,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 5
+        "y": 17
       }
     },
     {
@@ -316,7 +316,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 5
+        "y": 17
       }
     },
     {
@@ -369,85 +369,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 5
-      }
-    },
-    {
-      "id": 7,
-      "type": "bargauge",
-      "title": "Status Code Breakdown",
-      "datasource": "Loki",
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sort_desc(sum by (status) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"}[$__range])))",
-          "legendFormat": "{{status}}",
-          "instant": true
-        }
-      ],
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "color": {
-            "mode": "palette-classic"
-          }
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 13
-      }
-    },
-    {
-      "id": 8,
-      "type": "bargauge",
-      "title": "Method Breakdown",
-      "datasource": "Loki",
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sort_desc(sum by (method) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"}[$__range])))",
-          "legendFormat": "{{method}}",
-          "instant": true
-        }
-      ],
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "color": {
-            "mode": "palette-classic"
-          }
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 13
+        "y": 17
       }
     },
     {
@@ -469,7 +391,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 21
+        "y": 25
       }
     },
     {
@@ -491,7 +413,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 21
+        "y": 25
       }
     },
     {
@@ -513,7 +435,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 21
+        "y": 25
       }
     },
     {
@@ -535,7 +457,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 33
       }
     },
     {
@@ -584,9 +506,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 37
+        "w": 8,
+        "x": 16,
+        "y": 5
       }
     },
     {
@@ -606,9 +528,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 18,
-        "x": 6,
-        "y": 37
+        "w": 24,
+        "x": 0,
+        "y": 41
       }
     },
     {
@@ -628,10 +550,10 @@
         "showHeader": true
       },
       "gridPos": {
-        "h": 8,
+        "h": 12,
         "w": 8,
-        "x": 0,
-        "y": 45
+        "x": 16,
+        "y": 10
       }
     },
     {
@@ -704,10 +626,10 @@
         }
       },
       "gridPos": {
-        "h": 8,
+        "h": 12,
         "w": 16,
-        "x": 8,
-        "y": 45
+        "x": 0,
+        "y": 5
       }
     },
     {
@@ -730,7 +652,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 49
       }
     }
   ]
