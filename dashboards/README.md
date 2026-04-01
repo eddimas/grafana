@@ -101,6 +101,7 @@ The validator checks:
 - **Cluster Stats**: Additional cluster statistics and metrics
 - **AdGuard Home Overview**: DNS filtering health, query volume, blocked traffic, clients, and upstreams
 - **Grafana Observability**: Grafana internal metrics, API latency, and pod health
+- **Raspberry Pi nginx Access Logs**: Access log volume, HTTP status breakdown, top paths, top client IPs, and live logs from Raspberry Pi nginx hosts
 - **Physical Infrastructure Overview**: Raspberry Pi and Minisforum CPU, memory, disk, network, load, uptime, and temperature
 - **PVC Storage**: Persistent volume monitoring and growth tracking
 
