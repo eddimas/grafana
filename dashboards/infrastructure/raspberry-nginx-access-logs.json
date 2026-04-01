@@ -88,7 +88,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"}[$__range]))"
+          "expr": "sum(count_over_time({job=~\"$source\"} |~ \"^[0-9A-Fa-f:.]+ - .*\\\\[\" [$__range]))"
         }
       ],
       "options": {
@@ -122,7 +122,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"4..\"}[$__range]))"
+          "expr": "sum(count_over_time({job=~\"$source\", status=~\"4..\"}[$__range])) + sum(count_over_time({job=~\"$source\", namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"4..\" [$__range]))"
         }
       ],
       "options": {
@@ -169,7 +169,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"5..\"}[$__range]))"
+          "expr": "sum(count_over_time({job=~\"$source\", status=~\"5..\"}[$__range])) + sum(count_over_time({job=~\"$source\", namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"5..\" [$__range]))"
         }
       ],
       "options": {
@@ -220,7 +220,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))"
+          "expr": "count((sum by (remote_addr) (count_over_time({job=~\"$source\", status=~\".+\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time({job=~\"$source\", namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" [$__range]))))"
         }
       ],
       "options": {
@@ -248,13 +248,18 @@
     {
       "id": 5,
       "type": "timeseries",
-      "title": "Requests per Second by Host",
+      "title": "Requests per Second",
       "datasource": "Loki",
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"}[$__interval]))",
-          "legendFormat": "{{host}}"
+          "expr": "sum by (host) (rate({job=~\"$source\", host=~\"$host\", method=~\"$method\"}[$__interval]))",
+          "legendFormat": "nginx {{host}}"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (router) (rate({job=~\"$source\", namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" [$__interval]))",
+          "legendFormat": "traefik {{router}}"
         }
       ],
       "fieldConfig": {
@@ -306,8 +311,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"4..\"}[$__interval]))",
-          "legendFormat": "{{host}}"
+          "expr": "sum by (host) (rate({job=~\"$source\", host=~\"$host\", method=~\"$method\", status=~\"4..\"}[$__interval]))",
+          "legendFormat": "nginx {{host}}"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (router) (rate({job=~\"$source\", namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"4..\" [$__interval]))",
+          "legendFormat": "traefik {{router}}"
         }
       ],
       "fieldConfig": {
@@ -355,8 +365,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"5..\"}[$__interval]))",
-          "legendFormat": "{{host}}"
+          "expr": "sum by (host) (rate({job=~\"$source\", host=~\"$host\", method=~\"$method\", status=~\"5..\"}[$__interval]))",
+          "legendFormat": "nginx {{host}}"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (router) (rate({job=~\"$source\", namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"5..\" [$__interval]))",
+          "legendFormat": "traefik {{router}}"
         }
       ],
       "fieldConfig": {
