@@ -46,7 +46,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "((max by (instance) (node_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"} - node_boot_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) * on (instance) max by (instance) (up{job=\"node-exporter\", instance=~\"raspberrypi-dev|raspberrypi-prod\"})) or on (instance) (0 * max by (instance) (up{job=\"node-exporter\", instance=~\"raspberrypi-dev|raspberrypi-prod\"}))) or ((max by (instance) ((time() - kernel_all_boottime{job=\"pcp-minisforum\", instance=\"minisforum-server\"}) * on (instance) up{job=\"pcp-minisforum\", instance=\"minisforum-server\"})) or on (instance) (0 * max by (instance) (up{job=\"pcp-minisforum\", instance=\"minisforum-server\"}))))",
+          "expr": "(max by (instance) ((node_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"} - node_boot_time_seconds{instance=~\"raspberrypi-dev|raspberrypi-prod\"}) * on (instance) up{job=\"node-exporter\", instance=~\"raspberrypi-dev|raspberrypi-prod\"})) or (max by (instance) ((time() - kernel_all_boottime{job=\"pcp-minisforum\", instance=\"minisforum-server\"}) * on (instance) up{job=\"pcp-minisforum\", instance=\"minisforum-server\"})) or on (instance) (0 * max by (instance) (up{job=\"pcp-minisforum\", instance=\"minisforum-server\"})))",
           "legendFormat": "{{instance}}"
         }
       ],
