@@ -104,7 +104,7 @@ The validator checks:
 - **OpenCost Infrastructure Cost**: Estimated monthly capacity, allocated USD cost, namespace allocation, pod cost leaders, hourly burn, and temporary electricity estimates based on the current Gexa bill effective rate plus assumed host wattage
   Current temporary electricity assumptions: `minisforum=35W`, `raspberrypi-prod=6W`, `raspberrypi-dev=6W`, `0.2334 USD/kWh`
 - **Raspberry Pi nginx Access Logs**: Access log volume, HTTP status breakdown, top paths, top client IPs, Cloudflare client IP visibility for `raspberrypi-prod`, suspicious-path monitoring, and live logs from Raspberry Pi nginx hosts
-- **Physical Infrastructure Overview**: Raspberry Pi and Minisforum CPU, memory, disk, network, load, uptime, and temperature
+- **Physical Infrastructure Overview**: Raspberry Pi and Minisforum CPU, memory, disk, network, and load monitoring, plus uptime; temperature panels currently rely on Raspberry Pi `node_hwmon_temp_celsius`
 - **PVC Storage**: Persistent volume monitoring and growth tracking
 
 ### Business
