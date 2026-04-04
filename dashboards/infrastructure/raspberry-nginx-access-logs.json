@@ -418,12 +418,12 @@
     {
       "id": 9,
       "type": "table",
-      "title": "Top Request Paths",
+      "title": "Top Request Paths (nginx + Traefik)",
       "datasource": "Loki",
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
+          "expr": "topk(10, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"$method\" [$__range]))))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -440,12 +440,12 @@
     {
       "id": 10,
       "type": "table",
-      "title": "Top Client IPs",
+      "title": "Top Client IPs (nginx + Traefik)",
       "datasource": "Loki",
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
+          "expr": "topk(10, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"$method\" [$__range]))))",
           "legendFormat": "{{remote_addr}}"
         }
       ],
@@ -484,12 +484,12 @@
     {
       "id": 11,
       "type": "table",
-      "title": "Top User Agents",
+      "title": "Top User Agents (nginx + Traefik)",
       "datasource": "Loki",
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
+          "expr": "topk(10, (sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (http_user_agent) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"$method\" [$__range]))))",
           "legendFormat": "{{http_user_agent}}"
         }
       ],
