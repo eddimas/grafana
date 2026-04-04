@@ -650,7 +650,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sort_desc((sum by (country) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"} !~ \"$exclude_monitoring_line_regex\" | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or (sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"$method\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | RequestPath !~ \"$exclude_monitoring_request_regex\" | RouterName !~ \"$exclude_monitoring_router_regex\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range]))))",
+          "expr": "sort_desc((sum by (country) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"} !~ \"$exclude_monitoring_line_regex\" | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"$method\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | RequestPath !~ \"$exclude_monitoring_request_regex\" | RouterName !~ \"$exclude_monitoring_router_regex\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range])))",
           "legendFormat": "{{country}}",
           "instant": true
         }
@@ -673,7 +673,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum by (country) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"} !~ \"$exclude_monitoring_line_regex\" | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or (sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"$method\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | RequestPath !~ \"$exclude_monitoring_request_regex\" | RouterName !~ \"$exclude_monitoring_router_regex\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range]))))",
+          "expr": "(sum by (country) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"} !~ \"$exclude_monitoring_line_regex\" | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"$method\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | RequestPath !~ \"$exclude_monitoring_request_regex\" | RouterName !~ \"$exclude_monitoring_router_regex\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range]))",
           "legendFormat": "{{country}}",
           "instant": true
         }
