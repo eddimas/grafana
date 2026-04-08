@@ -23,7 +23,7 @@
         "label": "Server",
         "type": "query",
         "query": {
-          "query": "label_values(adguard_running{job=\"adguard-exporter\"}, server)",
+          "query": "label_values(adguard_avg_processing_time_seconds, server)",
           "refId": "Server"
         },
         "multi": true,
@@ -45,7 +45,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(max by (server) (adguard_running{job=\"adguard-exporter\", server=~\"$server\"})) or vector(0)",
+          "expr": "sum(max by (server) (adguard_running{server=~\"$server\"})) or vector(0)",
           "instant": true
         }
       ],
@@ -91,7 +91,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(max by (server) (adguard_protection_enabled{job=\"adguard-exporter\", server=~\"$server\"})) or vector(0)",
+          "expr": "min(max by (server) (adguard_protection_enabled{server=~\"$server\"})) or vector(0)",
           "instant": true
         }
       ],
@@ -149,7 +149,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}) or vector(0)",
+          "expr": "sum(adguard_queries{server=~\"$server\"}) or vector(0)",
           "instant": true
         }
       ],
@@ -182,7 +182,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * ((sum(adguard_blocked_filtered{job=\"adguard-exporter\", server=~\"$server\"}) + sum(adguard_blocked_safesearch{job=\"adguard-exporter\", server=~\"$server\"}) + sum(adguard_blocked_safebrowsing{job=\"adguard-exporter\", server=~\"$server\"})) / clamp_min(sum(adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}), 1)) or vector(0)",
+          "expr": "100 * (sum(adguard_queries_blocked{server=~\"$server\"}) / clamp_min(sum(adguard_queries{server=~\"$server\"}), 1)) or vector(0)",
           "instant": true
         }
       ],
@@ -233,7 +233,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(adguard_scrape_errors_total{job=\"adguard-exporter\", server=~\"$server\"}[1h])) or vector(0)",
+          "expr": "sum(increase(adguard_scrape_errors_total{server=~\"$server\"}[1h])) or vector(0)",
           "instant": true
         }
       ],
@@ -278,7 +278,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}",
+          "expr": "adguard_queries{server=~\"$server\"}",
           "legendFormat": "{{server}}",
           "instant": true
         }
@@ -313,7 +313,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * ((sum by (server) (adguard_blocked_filtered{job=\"adguard-exporter\", server=~\"$server\"}) + sum by (server) (adguard_blocked_safesearch{job=\"adguard-exporter\", server=~\"$server\"}) + sum by (server) (adguard_blocked_safebrowsing{job=\"adguard-exporter\", server=~\"$server\"})) / clamp_min(sum by (server) (adguard_queries{job=\"adguard-exporter\", server=~\"$server\"}), 1))",
+          "expr": "100 * (sum by (server) (adguard_queries_blocked{server=~\"$server\"}) / clamp_min(sum by (server) (adguard_queries{server=~\"$server\"}), 1))",
           "legendFormat": "{{server}}",
           "instant": true
         }
@@ -361,12 +361,12 @@
     },
     {
       "id": 8,
-      "title": "DHCP Leases",
+      "title": "DHCP Enabled",
       "type": "bargauge",
       "targets": [
         {
           "refId": "A",
-          "expr": "adguard_dhcp_leases{job=\"adguard-exporter\", server=~\"$server\"}",
+          "expr": "adguard_dhcp_enabled{server=~\"$server\"}",
           "legendFormat": "{{server}}",
           "instant": true
         }
@@ -383,8 +383,21 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
-          "min": 0
+          "min": 0,
+          "max": 1,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Disabled"
+                },
+                "1": {
+                  "text": "Enabled"
+                }
+              }
+            }
+          ]
         }
       },
       "gridPos": {
@@ -401,7 +414,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "adguard_avg_processing_time_seconds{job=\"adguard-exporter\", server=~\"$server\"} * 1000",
+          "expr": "adguard_avg_processing_time_seconds{server=~\"$server\"} * 1000",
           "legendFormat": "{{server}}"
         }
       ],
@@ -425,18 +438,23 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(adguard_blocked_filtered{job=\"adguard-exporter\", server=~\"$server\"})",
-          "legendFormat": "Filtered"
+          "expr": "sum(adguard_queries_blocked{server=~\"$server\"}) - sum(adguard_replaced_safesearch{server=~\"$server\"}) - sum(adguard_replaced_safebrowsing{server=~\"$server\"}) - sum(adguard_replaced_parental{server=~\"$server\"})",
+          "legendFormat": "Blocked"
         },
         {
           "refId": "B",
-          "expr": "sum(adguard_blocked_safesearch{job=\"adguard-exporter\", server=~\"$server\"})",
+          "expr": "sum(adguard_replaced_safesearch{server=~\"$server\"})",
           "legendFormat": "SafeSearch"
         },
         {
           "refId": "C",
-          "expr": "sum(adguard_blocked_safebrowsing{job=\"adguard-exporter\", server=~\"$server\"})",
+          "expr": "sum(adguard_replaced_safebrowsing{server=~\"$server\"})",
           "legendFormat": "SafeBrowsing"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(adguard_replaced_parental{server=~\"$server\"})",
+          "legendFormat": "Parental"
         }
       ],
       "fieldConfig": {
@@ -459,7 +477,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (domain) (adguard_top_queried_domains{job=\"adguard-exporter\", server=~\"$server\"}))",
+          "expr": "topk(10, sum by (domain) (adguard_top_queried_domains{server=~\"$server\"}))",
           "legendFormat": "{{domain}}",
           "instant": true
         }
@@ -494,7 +512,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (domain) (adguard_top_blocked_domains{job=\"adguard-exporter\", server=~\"$server\"}))",
+          "expr": "topk(10, sum by (domain) (adguard_top_blocked_domains{server=~\"$server\"}))",
           "legendFormat": "{{domain}}",
           "instant": true
         }
@@ -529,7 +547,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (client) (adguard_top_clients{job=\"adguard-exporter\", server=~\"$server\"}))",
+          "expr": "topk(10, sum by (client) (adguard_top_clients{server=~\"$server\"}))",
           "legendFormat": "{{client}}",
           "instant": true
         }
@@ -564,7 +582,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, adguard_top_upstreams_avg_response_time_seconds{job=\"adguard-exporter\", server=~\"$server\"} * 1000)",
+          "expr": "topk(10, adguard_top_upstreams_avg_response_time_seconds{server=~\"$server\"} * 1000)",
           "legendFormat": "{{upstream}}",
           "instant": true
         }
@@ -599,7 +617,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, adguard_top_upstreams{job=\"adguard-exporter\", server=~\"$server\"})",
+          "expr": "topk(10, adguard_top_upstreams{server=~\"$server\"})",
           "legendFormat": "{{upstream}}",
           "instant": true
         }
