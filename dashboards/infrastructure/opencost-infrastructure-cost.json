@@ -15,7 +15,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(max(kube_node_status_capacity_cpu_cores) * 0.0012 * 730) + (max(kube_node_status_capacity_memory_bytes) / 1073741824 * 0.00024 * 730)",
+          "expr": "(max(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) * 0.0012 * 730) + (max(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) / 1073741824 * 0.00024 * 730)",
           "legendFormat": "Capacity"
         }
       ],
@@ -117,7 +117,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "((max(kube_node_status_capacity_cpu_cores) * 0.0012 * 730) + (max(kube_node_status_capacity_memory_bytes) / 1073741824 * 0.00024 * 730)) - (sum(container_cpu_allocation * 0.0012 * 730) + sum(container_memory_allocation_bytes / 1073741824 * 0.00024 * 730) + sum(pv_hourly_cost * 730))",
+          "expr": "((max(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) * 0.0012 * 730) + (max(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) / 1073741824 * 0.00024 * 730)) - (sum(container_cpu_allocation * 0.0012 * 730) + sum(container_memory_allocation_bytes / 1073741824 * 0.00024 * 730) + sum(pv_hourly_cost * 730))",
           "legendFormat": "Unallocated"
         }
       ],
@@ -168,7 +168,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "up{job=\"opencost\"}",
+          "expr": "max(up{job=\"kubernetes-service-endpoints\", kubernetes_service_name=\"opencost\"}) or vector(0)",
           "legendFormat": "OpenCost"
         }
       ],
