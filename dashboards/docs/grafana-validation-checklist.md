@@ -35,6 +35,8 @@
 - `Immich Pod Memory Limits`: revisa que los límites por pod tengan unidad correcta y no estén vacíos si defines limits.
 - `Immich Pod CPU Limits`: revisa que los límites por pod tengan unidad correcta y no estén vacíos si defines limits.
 - `Immich ConfigMaps & Secrets`: valida que el conteo sea razonable para el namespace.
+- `Immich Microservices Memory Usage % of Limit`: confirma que `immich-microservices` normalmente se mantenga por debajo del umbral rojo y revisa picos prolongados arriba de 85%.
+- `Immich Pod Working Set Memory`: valida que el `working set` por pod coincida con `kubectl top pod -n immich-dev` y ayude a distinguir crecimiento real de cache del nodo.
 
 ## 4. Validación Cruzada En Kubernetes
 
