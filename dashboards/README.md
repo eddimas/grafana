@@ -93,7 +93,7 @@ The validator checks:
 ## 📊 Current Dashboards
 
 ### Applications
-- **Immich Application**: Complete monitoring for photo management app
+- **Immich Application**: Complete monitoring for photo management app, including `immich-microservices` working set tracking and memory usage as a percentage of the configured pod limit
 - **Redis Cache**: Cache performance and efficiency metrics
 
 ### Infrastructure  

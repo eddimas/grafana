@@ -8,7 +8,7 @@
   ],
   "timezone": "browser",
   "schemaVersion": 30,
-  "version": 1,
+  "version": 2,
   "refresh": "30s",
   "panels": [
     {
@@ -267,6 +267,73 @@
         "x": 16,
         "y": 22
       }
+    },
+    {
+      "id": 12,
+      "title": "Immich Microservices Memory Usage % of Limit",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "100 * sum by (pod) (container_memory_working_set_bytes{namespace=\"immich-dev\", pod=~\"immich-microservices-.*\", container!=\"\", image!=\"\"}) / clamp_min(sum by (pod) (kube_pod_container_resource_limits{namespace=\"immich-dev\", pod=~\"immich-microservices-.*\", resource=\"memory\"}), 1)",
+          "legendFormat": "{{pod}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "yAxes": [
+        {
+          "min": 0,
+          "max": 100,
+          "label": "Percent"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "title": "Immich Pod Working Set Memory",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"immich-dev\", pod=~\"immich-.*\", container!=\"\", image!=\"\"}) / 1024 / 1024 / 1024",
+          "legendFormat": "{{pod}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "yAxes": [
+        {
+          "min": 0,
+          "label": "GiB"
+        }
+      ]
     }
   ],
   "time": {
