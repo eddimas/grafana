@@ -6,8 +6,7 @@
     "infrastructure",
     "hardware",
     "raspberry",
-    "node-exporter",
-    "pcp"
+    "node-exporter"
   ],
   "timezone": "browser",
   "schemaVersion": 42,
@@ -24,7 +23,7 @@
         "label": "Host",
         "type": "query",
         "query": {
-          "query": "label_values(up{job=~\"node-exporter|pcp-minisforum\"}, instance)",
+          "query": "label_values(up{job=\"node-exporter\"}, instance)",
           "refId": "Host"
         },
         "regex": "/(minisforum.*|raspberrypi-dev.*|raspberrypi-prod.*)/",
@@ -47,7 +46,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) ((node_time_seconds{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"} - node_boot_time_seconds{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"}) * on (instance) up{job=\"node-exporter\", instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"}) or max by (instance) (time() - kernel_all_boottime{job=\"pcp-minisforum\", instance=~\"minisforum.*\"})",
+          "expr": "max by (instance) ((node_time_seconds{instance=~\"$instance\"} - node_boot_time_seconds{instance=~\"$instance\"}) * on (instance) up{job=\"node-exporter\", instance=~\"$instance\"})",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -104,7 +103,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", mode=\"idle\"}[5m])) * 100)) or (100 - (avg by (instance) ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\", instance=~\"minisforum.*\"}[5m]) / 1000) * 100)))",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -155,7 +154,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"} / node_memory_MemTotal_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"}))) or max by (instance) ((1 - (mem_freemem{job=\"pcp-minisforum\", instance=~\"minisforum.*\"} / mem_physmem{job=\"pcp-minisforum\", instance=~\"minisforum.*\"})) * 100)",
+          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"})))",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -206,7 +205,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (100 * (1 - (node_filesystem_avail_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}))) or max by (instance) (100 * (filesys_used{job=\"pcp-minisforum\", instance=~\"minisforum.*\", instid=\"0\"} / filesys_capacity{job=\"pcp-minisforum\", instance=~\"minisforum.*\", instid=\"0\"}))",
+          "expr": "max by (instance) (100 * (1 - (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"})))",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -257,12 +256,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", mode=\"idle\"}[5m])) * 100)",
-          "legendFormat": "{{instance}}"
-        },
-        {
-          "refId": "B",
-          "expr": "100 - (avg by (instance) ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\", instance=~\"minisforum.*\"}[5m]) / 1000) * 100))",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -287,12 +281,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"} / node_memory_MemTotal_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"})))",
-          "legendFormat": "{{instance}}"
-        },
-        {
-          "refId": "B",
-          "expr": "max by (instance) ((1 - (mem_freemem{job=\"pcp-minisforum\", instance=~\"minisforum.*\"} / mem_physmem{job=\"pcp-minisforum\", instance=~\"minisforum.*\"})) * 100)",
+          "expr": "max by (instance) (100 * (1 - (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"})))",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -317,12 +306,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 - (avg by (instance, cpu) (rate(node_cpu_seconds_total{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", mode=\"idle\"}[5m])) * 100)",
-          "legendFormat": "{{instance}} cpu{{cpu}}"
-        },
-        {
-          "refId": "B",
-          "expr": "100 - ((rate(kernel_percpu_cpu_idle{job=\"pcp-minisforum\", instance=~\"minisforum.*\"}[5m]) / 1000) * 100)",
+          "expr": "100 - (avg by (instance, cpu) (rate(node_cpu_seconds_total{instance=~\"$instance\", mode=\"idle\"}[5m])) * 100)",
           "legendFormat": "{{instance}} cpu{{cpu}}"
         }
       ],
@@ -347,17 +331,17 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_load1{instance=~\"$instance\"}) or max by (instance) (kernel_all_load{job=\"pcp-minisforum\", instance=~\"$instance\", instid=\"1\"})",
+          "expr": "max by (instance) (node_load1{instance=~\"$instance\"})",
           "legendFormat": "{{instance}} load1"
         },
         {
           "refId": "B",
-          "expr": "max by (instance) (node_load5{instance=~\"$instance\"}) or max by (instance) (kernel_all_load{job=\"pcp-minisforum\", instance=~\"$instance\", instid=\"5\"})",
+          "expr": "max by (instance) (node_load5{instance=~\"$instance\"})",
           "legendFormat": "{{instance}} load5"
         },
         {
           "refId": "C",
-          "expr": "max by (instance) (node_load15{instance=~\"$instance\"}) or max by (instance) (kernel_all_load{job=\"pcp-minisforum\", instance=~\"$instance\", instid=\"15\"})",
+          "expr": "max by (instance) (node_load15{instance=~\"$instance\"})",
           "legendFormat": "{{instance}} load15"
         }
       ],
@@ -380,12 +364,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_memory_MemAvailable_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"})",
-          "legendFormat": "{{instance}}"
-        },
-        {
-          "refId": "B",
-          "expr": "max by (instance) (mem_freemem{job=\"pcp-minisforum\", instance=~\"minisforum.*\"})",
+          "expr": "max by (instance) (node_memory_MemAvailable_bytes{instance=~\"$instance\"})",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -409,7 +388,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_filesystem_avail_bytes{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}) or max by (instance) (filesys_free{job=\"pcp-minisforum\", instance=~\"minisforum.*\", instid=\"0\"})",
+          "expr": "max by (instance) (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"})",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -433,22 +412,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (instance) (rate(node_disk_read_bytes_total{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_disk_read_bytes_total{instance=~\"$instance\"}[5m]))",
           "legendFormat": "{{instance}} read"
         },
         {
           "refId": "B",
-          "expr": "sum by (instance) (rate(node_disk_written_bytes_total{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"}[5m]))",
-          "legendFormat": "{{instance}} write"
-        },
-        {
-          "refId": "C",
-          "expr": "sum by (instance) (rate(disk_all_read_bytes{job=\"pcp-minisforum\", instance=~\"minisforum.*\"}[5m]))",
-          "legendFormat": "{{instance}} read"
-        },
-        {
-          "refId": "D",
-          "expr": "sum by (instance) (rate(disk_all_write_bytes{job=\"pcp-minisforum\", instance=~\"minisforum.*\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_disk_written_bytes_total{instance=~\"$instance\"}[5m]))",
           "legendFormat": "{{instance}} write"
         }
       ],
@@ -472,22 +441,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", device!=\"lo\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{instance=~\"$instance\", device!=\"lo\"}[5m]))",
           "legendFormat": "{{instance}} rx"
         },
         {
           "refId": "B",
-          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\", device!=\"lo\"}[5m]))",
-          "legendFormat": "{{instance}} tx"
-        },
-        {
-          "refId": "C",
-          "expr": "sum by (instance) (rate(network_interface_in_bytes{job=\"pcp-minisforum\", instance=~\"minisforum.*\", interface=~\"(en|eth|eno|ens|wlan).*\"}[5m]))",
-          "legendFormat": "{{instance}} rx"
-        },
-        {
-          "refId": "D",
-          "expr": "sum by (instance) (rate(network_interface_out_bytes{job=\"pcp-minisforum\", instance=~\"minisforum.*\", interface=~\"(en|eth|eno|ens|wlan).*\"}[5m]))",
+          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{instance=~\"$instance\", device!=\"lo\"}[5m]))",
           "legendFormat": "{{instance}} tx"
         }
       ],
@@ -511,7 +470,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_load15{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"}) or max by (instance) (kernel_all_load{job=\"pcp-minisforum\", instance=~\"minisforum.*\", instid=\"15\"})",
+          "expr": "max by (instance) (node_load15{instance=~\"$instance\"})",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -560,7 +519,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_hwmon_temp_celsius{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"})",
+          "expr": "max by (instance) (node_hwmon_temp_celsius{instance=~\"$instance\"})",
           "legendFormat": "{{instance}}"
         }
       ],
@@ -610,7 +569,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_hwmon_temp_celsius{instance=~\"raspberrypi-dev.*|raspberrypi-prod.*\"})",
+          "expr": "max by (instance) (node_hwmon_temp_celsius{instance=~\"$instance\"})",
           "legendFormat": "{{instance}}"
         }
       ],
