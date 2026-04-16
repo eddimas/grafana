@@ -1,0 +1,489 @@
+{
+  "id": null,
+  "uid": "ai-stack-performance",
+  "title": "AI Stack Performance",
+  "tags": [
+    "ai",
+    "localai",
+    "context-gateway",
+    "loki",
+    "prometheus",
+    "performance"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 42,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "route",
+        "label": "Route",
+        "type": "custom",
+        "query": "localai,context-gateway,all",
+        "current": {
+          "selected": true,
+          "text": "all",
+          "value": "localai|context-gateway"
+        },
+        "options": [
+          {
+            "selected": false,
+            "text": "localai",
+            "value": "localai"
+          },
+          {
+            "selected": false,
+            "text": "context-gateway",
+            "value": "context-gateway"
+          },
+          {
+            "selected": true,
+            "text": "all",
+            "value": "localai|context-gateway"
+          }
+        ]
+      },
+      {
+        "name": "method",
+        "label": "Method",
+        "type": "custom",
+        "query": "GET,POST,PUT,DELETE,PATCH,all",
+        "current": {
+          "selected": true,
+          "text": "all",
+          "value": ".*"
+        },
+        "options": [
+          {
+            "selected": false,
+            "text": "GET",
+            "value": "GET"
+          },
+          {
+            "selected": false,
+            "text": "POST",
+            "value": "POST"
+          },
+          {
+            "selected": false,
+            "text": "PUT",
+            "value": "PUT"
+          },
+          {
+            "selected": false,
+            "text": "DELETE",
+            "value": "DELETE"
+          },
+          {
+            "selected": false,
+            "text": "PATCH",
+            "value": "PATCH"
+          },
+          {
+            "selected": true,
+            "text": "all",
+            "value": ".*"
+          }
+        ]
+      },
+      {
+        "name": "traefik_json_query",
+        "type": "constant",
+        "hide": 2,
+        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
+        "current": {
+          "selected": false,
+          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
+          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\""
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total Requests",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__range])) or vector(0)"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "5xx Error Rate",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (sum(count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"5..\" [$__range])) / sum(count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__range])))"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "P95 Latency",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg(quantile_over_time(0.95, $traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | unwrap Duration [$__range])) / 1e6"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 300
+              },
+              {
+                "color": "red",
+                "value": 1200
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Current RPS",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__interval]))"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Requests per Second by Router",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__interval]))",
+          "legendFormat": "{{RouterName}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "P95 Latency by Router",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.95, $traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | unwrap Duration [$__interval]) / 1e6",
+          "legendFormat": "{{RouterName}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "HTTP Errors by Router (4xx / 5xx)",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"4..\" [$__interval]))",
+          "legendFormat": "4xx {{RouterName}}"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"5..\" [$__interval]))",
+          "legendFormat": "5xx {{RouterName}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Top Paths by Request Rate",
+      "datasource": "Loki",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(15, sum by (RequestPath) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__interval])))",
+          "legendFormat": "{{RequestPath}}"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "seriesToRows",
+          "options": {
+            "reducers": []
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "CPU Usage by Namespace",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{namespace=~\"localai-dev|context-gateway-dev|qdrant-dev\", image!=\"\", container!=\"\"}[5m]))",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Memory Working Set by Namespace",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (container_memory_working_set_bytes{namespace=~\"localai-dev|context-gateway-dev|qdrant-dev\", image!=\"\", container!=\"\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 21
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Container Restarts (Last 1h)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"localai-dev|context-gateway-dev|qdrant-dev\"}[1h]))",
+          "legendFormat": "{{namespace}}/{{pod}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 21
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Running Pods by Namespace",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count by (namespace) (kube_pod_status_phase{namespace=~\"localai-dev|context-gateway-dev|qdrant-dev\", phase=\"Running\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      }
+    }
+  ]
+}
