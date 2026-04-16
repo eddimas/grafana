@@ -12,9 +12,12 @@ dashboards/
 ├── infrastructure/      # Infrastructure monitoring
 │   ├── cluster-stats.json
 │   ├── adguard-home-overview.json
+│   ├── ai-stack-performance.json
 │   ├── grafana-observability.json
 │   ├── kubernetes-cluster-overview.json
+│   ├── opencost-infrastructure-cost.json
 │   ├── physical-infrastructure-overview.json
+│   ├── raspberry-nginx-access-logs.json
 │   └── pvc-storage.json
 ├── business/            # Business and usage dashboards
 │   ├── .gitkeep
