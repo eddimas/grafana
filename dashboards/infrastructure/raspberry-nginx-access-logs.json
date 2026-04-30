@@ -121,7 +121,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])) or vector(0))"
         }
       ],
       "options": {
@@ -155,7 +155,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"4..\"} !~ \"$exclude_monitoring_line_regex\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"4..\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"4..\"} !~ \"${exclude_monitoring_line_regex}\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"4..\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])) or vector(0))"
         }
       ],
       "options": {
@@ -202,7 +202,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"5..\"} !~ \"$exclude_monitoring_line_regex\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"5..\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"5..\"} !~ \"${exclude_monitoring_line_regex}\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"5..\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])) or vector(0))"
         }
       ],
       "options": {
@@ -253,7 +253,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count((sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range]))))"
+          "expr": "count((sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range]))))"
         }
       ],
       "options": {
@@ -286,12 +286,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} [$__interval]))",
+          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} [$__interval]))",
           "legendFormat": "nginx {{host}}"
         },
         {
           "refId": "B",
-          "expr": "sum by (router) (rate({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__interval]))",
+          "expr": "sum by (router) (rate({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__interval]))",
           "legendFormat": "traefik {{router}}"
         }
       ],
@@ -344,12 +344,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"4..\"} [$__interval]))",
+          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"4..\"} [$__interval]))",
           "legendFormat": "nginx {{host}}"
         },
         {
           "refId": "B",
-          "expr": "sum by (router) (rate({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"4..\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__interval]))",
+          "expr": "sum by (router) (rate({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"4..\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__interval]))",
           "legendFormat": "traefik {{router}}"
         }
       ],
@@ -398,12 +398,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", status=~\"5..\"} [$__interval]))",
+          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"5..\"} [$__interval]))",
           "legendFormat": "nginx {{host}}"
         },
         {
           "refId": "B",
-          "expr": "sum by (router) (rate({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"5..\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__interval]))",
+          "expr": "sum by (router) (rate({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | status =~ \"5..\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__interval]))",
           "legendFormat": "traefik {{router}}"
         }
       ],
@@ -456,7 +456,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"$method\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range]))))",
+          "expr": "topk(10, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"${method:regex}\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range]))))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -478,7 +478,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"$method\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range]))))",
+          "expr": "topk(10, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"${method:regex}\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range]))))",
           "legendFormat": "{{remote_addr}}"
         }
       ],
@@ -500,7 +500,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (http_cf_connecting_ip) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" \\\"<host_header>\\\" \\\"<server_name>\\\" \\\"<scheme>\\\" \\\"<request_uri>\\\" \\\"<request_time>\\\" \\\"<upstream_addr>\\\" \\\"<upstream_status>\\\" \\\"<upstream_response_time>\\\" \\\"<http_x_forwarded_for>\\\" \\\"<http_cf_connecting_ip>\\\" \\\"<http_cf_ray>\\\"\" [$__range])))",
+          "expr": "topk(10, sum by (http_cf_connecting_ip) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" \\\"<host_header>\\\" \\\"<server_name>\\\" \\\"<scheme>\\\" \\\"<request_uri>\\\" \\\"<request_time>\\\" \\\"<upstream_addr>\\\" \\\"<upstream_status>\\\" \\\"<upstream_response_time>\\\" \\\"<http_x_forwarded_for>\\\" \\\"<http_cf_connecting_ip>\\\" \\\"<http_cf_ray>\\\"\" [$__range])))",
           "legendFormat": "{{http_cf_connecting_ip}}"
         }
       ],
@@ -522,7 +522,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, (sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (http_user_agent) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"$method\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range]))))",
+          "expr": "topk(10, (sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (http_user_agent) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | parsed_method=~\"${method:regex}\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range]))))",
           "legendFormat": "{{http_user_agent}}"
         }
       ],
@@ -544,7 +544,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])) or vector(0)) + (sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])) or vector(0))"
         }
       ],
       "options": {
@@ -595,7 +595,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (remote_addr) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | router !~ \"$exclude_monitoring_router_regex\" [$__range]))))",
+          "expr": "topk(15, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (remote_addr) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range]))))",
           "legendFormat": "{{remote_addr}}"
         }
       ],
@@ -617,7 +617,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | router !~ \"$exclude_monitoring_router_regex\" [$__range]))))",
+          "expr": "topk(15, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range]))))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -639,7 +639,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sort_desc(sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range])))",
+          "expr": "sort_desc(sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range])))",
           "legendFormat": "{{http_cf_ipcountry}}",
           "instant": true
         }
@@ -662,7 +662,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range]))",
+          "expr": "sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range]))",
           "legendFormat": "{{http_cf_ipcountry}}",
           "instant": true
         }
@@ -738,7 +738,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (router) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])))",
+          "expr": "topk(10, sum by (router) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])))",
           "legendFormat": "{{router}}"
         }
       ],
@@ -760,7 +760,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])))",
+          "expr": "topk(10, sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -782,7 +782,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sort_desc(sum by (status) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])))",
+          "expr": "sort_desc(sum by (status) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])))",
           "legendFormat": "{{status}}"
         }
       ],
@@ -804,7 +804,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (service_url) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\" [$__range])))",
+          "expr": "topk(10, sum by (service_url) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\" [$__range])))",
           "legendFormat": "{{service_url}}"
         }
       ],
@@ -826,11 +826,11 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} !~ \"$exclude_monitoring_line_regex\""
+          "expr": "{job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"${exclude_monitoring_line_regex}\""
         },
         {
           "refId": "B",
-          "expr": "{namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"$exclude_monitoring_request_regex\" | router !~ \"$exclude_monitoring_router_regex\""
+          "expr": "{namespace=\"traefik-v2\", container=\"traefik\"} |~ \"stdout F [0-9.:]+ - - \\\\[\" | pattern \"<_> stdout F <remote_addr> - - [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" <request_count> \\\"<router>\\\" \\\"<service_url>\\\" <request_duration>\" | request !~ \"${exclude_monitoring_request_regex}\" | router !~ \"${exclude_monitoring_router_regex}\""
         }
       ],
       "options": {
