@@ -123,11 +123,11 @@
         "name": "traefik_json_query",
         "type": "constant",
         "hide": 2,
-        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
+        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
         "current": {
           "selected": false,
-          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
-          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\""
+          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
+          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\""
         }
       }
     ]
@@ -353,12 +353,12 @@
       "targets": [
           {
             "refId": "A",
-            "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"4..\" [$__interval]))",
+            "expr": "sum by (RouterName) (rate($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"4..\" | RouterName=~\".*(${route:regex}).*\" [$__interval]))",
             "legendFormat": "4xx {{RouterName}}"
           },
         {
           "refId": "B",
-          "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"5..\" [$__interval]))",
+          "expr": "sum by (RouterName) (rate($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"5..\" | RouterName=~\".*(${route:regex}).*\" [$__interval]))",
           "legendFormat": "5xx {{RouterName}}"
         }
       ],
@@ -383,7 +383,7 @@
       "targets": [
           {
             "refId": "A",
-            "expr": "topk(15, sum by (request) (count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | label_format request=\"{{.RequestPath}}\" [$__range])))",
+            "expr": "topk(15, sum by (request) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RouterName=~\".*(${route:regex}).*\" | label_format request=\"{{.RequestPath}}\" [$__range])))",
             "legendFormat": "{{request}}"
           }
         ],
