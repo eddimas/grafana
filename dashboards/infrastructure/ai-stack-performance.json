@@ -95,11 +95,11 @@
         "name": "traefik_json_query",
         "type": "constant",
         "hide": 2,
-        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
+        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
         "current": {
           "selected": false,
-          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
-          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\""
+          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
+          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\""
         }
       }
     ]
@@ -140,12 +140,12 @@
     {
       "id": 2,
       "type": "stat",
-      "title": "5xx Error Rate",
+      "title": "5xx Requests",
       "datasource": "Loki",
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * (sum(count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"5..\" [$__range])) / sum(count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__range])))"
+          "expr": "sum(count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"5..\" [$__range])) or vector(0)"
         }
       ],
       "options": {
@@ -189,12 +189,12 @@
     {
       "id": 3,
       "type": "stat",
-      "title": "P95 Latency",
-      "datasource": "Loki",
+      "title": "P95 Latency (Overall)",
+      "datasource": "Prometheus",
       "targets": [
         {
           "refId": "A",
-          "expr": "avg(quantile_over_time(0.95, $traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | unwrap Duration [$__range])) / 1e6"
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))"
         }
       ],
       "options": {
@@ -243,7 +243,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__interval]))"
+          "expr": "sum(rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__interval])) or vector(0)"
         }
       ],
       "options": {
@@ -295,13 +295,13 @@
     {
       "id": 6,
       "type": "timeseries",
-      "title": "P95 Latency by Router",
-      "datasource": "Loki",
+      "title": "Avg Latency (Overall)",
+      "datasource": "Prometheus",
       "targets": [
         {
           "refId": "A",
-          "expr": "quantile_over_time(0.95, $traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | unwrap Duration [$__interval]) / 1e6",
-          "legendFormat": "{{RouterName}}"
+          "expr": "(sum(rate(traefik_entrypoint_request_duration_seconds_sum[5m])) / sum(rate(traefik_entrypoint_request_duration_seconds_count[5m]))) * 1000",
+          "legendFormat": "avg latency"
         }
       ],
       "fieldConfig": {

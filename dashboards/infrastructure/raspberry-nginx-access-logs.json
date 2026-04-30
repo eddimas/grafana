@@ -108,11 +108,11 @@
         "name": "traefik_json_query",
         "type": "constant",
         "hide": 2,
-        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
+        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
         "current": {
           "selected": false,
-          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
-          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\""
+          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
+          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\""
         }
       }
     ]
