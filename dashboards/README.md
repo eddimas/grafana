@@ -107,7 +107,7 @@ The validator checks:
 - **OpenCost Infrastructure Cost**: Estimated monthly capacity, allocated USD cost, namespace allocation, pod cost leaders, hourly burn, and temporary electricity estimates based on the current Gexa bill effective rate plus assumed host wattage
   Current temporary electricity assumptions: `minisforum=35W`, `raspberrypi-prod=6W`, `raspberrypi-dev=6W`, `0.2334 USD/kWh`
 - **Raspberry Pi nginx Access Logs**: Access log volume, HTTP status breakdown, top paths, top client IPs, Cloudflare client IP visibility for `raspberrypi-prod`, suspicious-path monitoring, and live logs from Raspberry Pi nginx hosts
-- **AI Stack Performance**: End-to-end AI traffic and health visibility for `ai.eduardodimas.com`, including request volume, RPS, 4xx/5xx rate, P95 latency, top paths (Loki/Traefik logs), and resource/restart posture for `localai-dev`, `context-gateway-dev`, and `qdrant-dev` (Prometheus)
+- **AI Stack Performance**: End-to-end AI traffic and health visibility for `ai.eduardodimas.com`, including request volume, RPS, 4xx/5xx rate, P95 latency, top paths from Traefik log JSON, and resource/restart posture for `localai-dev`, `context-gateway-dev`, and `qdrant-dev` (Prometheus)
 - **Physical Infrastructure Overview**: Raspberry Pi and Minisforum CPU, memory, disk, network, and load monitoring, plus uptime, all standardized on `node_exporter` / `node_*` metrics; temperature panels use `node_hwmon_temp_celsius` where the host exposes it
 - **PVC Storage**: Persistent volume monitoring and growth tracking
 

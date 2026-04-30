@@ -123,11 +123,11 @@
         "name": "traefik_json_query",
         "type": "constant",
         "hide": 2,
-        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
+        "query": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
         "current": {
           "selected": false,
-          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\"",
-          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\""
+          "text": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\"",
+          "value": "{namespace=\"traefik-v2\", container=\"traefik\"} | pattern \"<_> stdout F <json_payload>\" | json_payload=~\"\\\\{.*\" | line_format \"{{.json_payload}}\" | json | __error__=\"\""
         }
       }
     ]
@@ -345,17 +345,17 @@
         "y": 5
       }
     },
-    {
-      "id": 7,
-      "type": "timeseries",
-      "title": "HTTP Errors by Router (4xx / 5xx)",
-      "datasource": "Loki",
+      {
+        "id": 7,
+        "type": "timeseries",
+        "title": "HTTP Errors by Router (4xx / 5xx)",
+        "datasource": "Loki",
       "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"4..\" [$__interval]))",
-          "legendFormat": "4xx {{RouterName}}"
-        },
+          {
+            "refId": "A",
+            "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"4..\" [$__interval]))",
+            "legendFormat": "4xx {{RouterName}}"
+          },
         {
           "refId": "B",
           "expr": "sum by (RouterName) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"5..\" [$__interval]))",
@@ -375,18 +375,18 @@
         "y": 13
       }
     },
-    {
-      "id": 8,
-      "type": "table",
-      "title": "Top Paths by Request Rate",
-      "datasource": "Loki",
+      {
+        "id": 8,
+        "type": "table",
+        "title": "Top Paths by Request Rate",
+        "datasource": "Loki",
       "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(15, sum by (RequestPath) (rate($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" [$__interval])))",
-          "legendFormat": "{{RequestPath}}"
-        }
-      ],
+          {
+            "refId": "A",
+            "expr": "topk(15, sum by (request) (count_over_time($traefik_json_query | RequestHost=\"ai.eduardodimas.com\" | RouterName=~\".*(${route:regex}).*\" | RequestMethod=~\"${method:regex}\" | label_format request=\"{{.RequestPath}}\" [$__range])))",
+            "legendFormat": "{{request}}"
+          }
+        ],
       "transformations": [
         {
           "id": "seriesToRows",

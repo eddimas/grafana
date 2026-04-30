@@ -38,7 +38,13 @@
 - `Immich Microservices Memory Usage % of Limit`: confirma que `immich-microservices` normalmente se mantenga por debajo del umbral rojo y revisa picos prolongados arriba de 85%.
 - `Immich Pod Working Set Memory`: valida que el `working set` por pod coincida con `kubectl top pod -n immich-dev` y ayude a distinguir crecimiento real de cache del nodo.
 
-## 4. Validación Cruzada En Kubernetes
+## 4. Paneles Del Dashboard AI Stack Performance
+
+- `Total Requests`, `5xx Requests`, `P95 Latency (Overall)`, `Current RPS`, and `Requests per Second by Router` should show Prometheus data for Traefik.
+- `HTTP Errors by Router (4xx / 5xx)` and `Top Paths by Request Rate` depend on Traefik logs being emitted through container stdout in the expected `stdout F ...` format.
+- If those Loki panels are empty, inspect the raw Traefik log line shape before changing the query.
+
+## 5. Validación Cruzada En Kubernetes
 
 - Ejecuta `kubectl get pods -n immich-dev`.
 - Ejecuta `kubectl get deploy -n immich-dev`.
@@ -46,14 +52,14 @@
 - Ejecuta `kubectl get pvc -n immich-dev`.
 - Compara esos conteos con los panels tipo `stat` y `table`.
 
-## 5. Señales De Problema
+## 6. Señales De Problema
 
 - Panel vacío: la métrica no existe, el label `namespace` no coincide o el datasource está mal.
 - Panel con datos de otra app: el query aún filtra mal por namespace o pod.
 - Valores duplicados: puede haber series repetidas por labels extra; revisa si necesitas `sum by (...)`.
 - Todo en cero: valida scraping, namespace exacto y rango de tiempo del dashboard.
 
-## 6. Comprobaciones Finales
+## 7. Comprobaciones Finales
 
 - Cambia el rango de tiempo de `Last 1 hour` a `Last 24 hours` y confirma que los gráficos sigan teniendo datos.
 - Abre `Inspect > Query` en 2 o 3 paneles y verifica el PromQL ejecutado.
