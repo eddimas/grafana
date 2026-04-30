@@ -2,7 +2,13 @@
   "id": null,
   "uid": "raspberry-nginx-access",
   "title": "Raspberry Pi nginx Access Logs",
-  "tags": ["infrastructure", "logs", "loki", "nginx", "raspberry"],
+  "tags": [
+    "infrastructure",
+    "logs",
+    "loki",
+    "nginx",
+    "raspberry"
+  ],
   "timezone": "browser",
   "schemaVersion": 42,
   "version": 3,
@@ -126,12 +132,14 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" [$__range])) or vector(0))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "values": false
         },
         "graphMode": "none",
@@ -158,12 +166,14 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"4..\"} !~ \"$exclude_monitoring_line_regex\" [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"4..\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"4..\"} [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"4..\" [$__range])) or vector(0))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "values": false
         },
         "graphMode": "none",
@@ -203,12 +213,14 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"5..\"} !~ \"$exclude_monitoring_line_regex\" [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"5..\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", status=~\"5..\"} [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"5..\" [$__range])) or vector(0))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "values": false
         },
         "graphMode": "none",
@@ -252,12 +264,14 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count((sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format remote_addr=\"{{.ClientHost}}\" [$__range]))))"
+          "expr": "count((sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format remote_addr=\"{{.ClientHost}}\" [$__range]))))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "values": false
         },
         "graphMode": "none"
@@ -453,7 +467,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (request) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format request=\"{{.RequestPath}}\" [$__range]))))",
+          "expr": "topk(10, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (request) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format request=\"{{.RequestPath}}\" [$__range]))))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -475,7 +489,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format remote_addr=\"{{.ClientHost}}\" [$__range]))))",
+          "expr": "topk(10, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (remote_addr) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format remote_addr=\"{{.ClientHost}}\" [$__range]))))",
           "legendFormat": "{{remote_addr}}"
         }
       ],
@@ -519,7 +533,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, (sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (http_user_agent) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format http_user_agent=\"{{.request_User_Agent}}\" [$__range]))))",
+          "expr": "topk(10, (sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))) or (sum by (http_user_agent) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | label_format http_user_agent=\"{{.request_User_Agent}}\" [$__range]))))",
           "legendFormat": "{{http_user_agent}}"
         }
       ],
@@ -541,12 +555,14 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RequestPath =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])) or vector(0))"
+          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])) or vector(0)) + (sum(count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RequestPath =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])) or vector(0))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "values": false
         },
         "graphMode": "none",
@@ -590,7 +606,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (remote_addr) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RequestPath =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | label_format remote_addr=\"{{.ClientHost}}\" [$__range]))))",
+          "expr": "topk(15, (sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (remote_addr) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RequestPath =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | label_format remote_addr=\"{{.ClientHost}}\" [$__range]))))",
           "legendFormat": "{{remote_addr}}"
         }
       ],
@@ -612,7 +628,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\" | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (request) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RequestPath =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | label_format request=\"{{.RequestPath}}\" [$__range]))))",
+          "expr": "topk(15, (sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))) or (sum by (request) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RequestPath =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" | label_format request=\"{{.RequestPath}}\" [$__range]))))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -634,7 +650,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sort_desc((sum by (country) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"} !~ \"$exclude_monitoring_line_regex\" | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range])))",
+          "expr": "sort_desc((sum by (country) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"} | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range])))",
           "legendFormat": "{{country}}",
           "instant": true
         }
@@ -657,7 +673,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum by (country) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"} !~ \"$exclude_monitoring_line_regex\" | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range]))",
+          "expr": "(sum by (country) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"} | label_format country=\"{{.http_cf_ipcountry}}\" [$__range]))) or sum by (country) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | request_Cf_Ipcountry=~\"[A-Z]{2}\" | label_format country=\"{{.request_Cf_Ipcountry}}\" [$__range]))",
           "legendFormat": "{{country}}",
           "instant": true
         }
@@ -821,7 +837,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"} !~ \"$exclude_monitoring_line_regex\""
+          "expr": "{job=\"nginx-access\", host=~\"${host:regex}\", method=~\"${method:regex}\"}"
         },
         {
           "refId": "B",
