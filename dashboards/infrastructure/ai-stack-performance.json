@@ -353,12 +353,12 @@
       "targets": [
           {
             "refId": "A",
-            "expr": "sum by (RouterName) (rate($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"4..\" | RouterName=~\".*(${route:regex}).*\" [$__interval]))",
+            "expr": "sum by (RouterName) (rate({namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"4..\" | RouterName=~\".*(${route:regex}).*\" [$__interval]))",
             "legendFormat": "4xx {{RouterName}}"
           },
         {
           "refId": "B",
-          "expr": "sum by (RouterName) (rate($traefik_json_query | RequestMethod=~\"${method:regex}\" | DownstreamStatus =~ \"5..\" | RouterName=~\".*(${route:regex}).*\" [$__interval]))",
+          "expr": "sum by (RouterName) (rate({namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\" | RequestMethod=~\"${method:regex}\" | DownstreamStatus=~\"5..\" | RouterName=~\".*(${route:regex}).*\" [$__interval]))",
           "legendFormat": "5xx {{RouterName}}"
         }
       ],
@@ -383,7 +383,7 @@
       "targets": [
           {
             "refId": "A",
-            "expr": "topk(15, sum by (request) (count_over_time($traefik_json_query | RequestMethod=~\"${method:regex}\" | RouterName=~\".*(${route:regex}).*\" | label_format request=\"{{.RequestPath}}\" [$__range])))",
+            "expr": "topk(15, sum by (request) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} | json | __error__=\"\" | RequestMethod=~\"${method:regex}\" | RouterName=~\".*(${route:regex}).*\" | label_format request=\"{{.RequestPath}}\" [$__range])))",
             "legendFormat": "{{request}}"
           }
         ],
