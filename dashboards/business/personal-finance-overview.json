@@ -449,7 +449,7 @@
       "targets": [
         {
           "refId": "A",
-          "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), \nclassified AS (SELECT CASE WHEN COALESCE(c.name, 'Sin categor\u00eda') <> 'Sin categor\u00eda' THEN c.name WHEN t.description ~* '(openai|chatgpt|cloudflare|github|google one|apple tv|apple tv shows|amazon web services|aws|canva|notion|adobe|spotify|netflix)' THEN 'Suscripciones' WHEN t.description ~* '(panera|velvet taco|first watch|ihop|mcdonald''s|in[- ]?n[- ]?out|emelias|papparoti|gill ice cream|sr\\.? ozzy|chili''s|paris baguette|denny''s|matsui)' THEN 'Restaurantes' WHEN t.description ~* '(costco|kroger|target|whole foods|wf dallas|walmart|soriana|chedraui|la suprema market|dollar tree)' THEN 'Supermercado' WHEN t.description ~* '(city of frisco utilities|municipal online payments|atmos energy|gexa energy|telcel|telmex|total play|ntta autochargeplan|dino clean car wash|prosper ford|mobile x global)' THEN 'Servicios' WHEN t.description ~* '(oxxo|7-eleven|circle k|qt|racetrac|buc-ee''s|365 vend)' THEN 'Conveniencia' WHEN t.description ~* '(walgreens|urgent care|pharmacy)' THEN 'Salud' WHEN t.description ~* '(dancemakers|sci-tech)' THEN 'Entretenimiento' WHEN t.description ~* '(infonavit)' THEN 'Renta/Hipoteca' WHEN t.description ~* '(marshalls|supercuts)' THEN 'Ropa' ELSE 'Sin categor\u00eda' END AS category, CASE WHEN a.currency = 'MXN' THEN t.amount WHEN a.currency = 'MXN' AND 'MXN' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND 'MXN' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END AS display_amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '.*') \nSELECT category AS category, ROUND(ABS(SUM(display_amount))::numeric, 2) AS total FROM classified GROUP BY category ORDER BY total DESC LIMIT 12",
+          "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), \nclassified AS (SELECT CASE WHEN COALESCE(c.name, 'Sin categor\u00eda') <> 'Sin categor\u00eda' THEN c.name WHEN t.description ~* '(openai|chatgpt|cloudflare|github|google one|apple tv|apple tv shows|amazon web services|aws|canva|notion|adobe|spotify|netflix)' THEN 'Suscripciones' WHEN t.description ~* '(panera|velvet taco|first watch|ihop|mcdonald''s|in[- ]?n[- ]?out|emelias|papparoti|gill ice cream|sr\\.? ozzy|chili''s|paris baguette|denny''s|matsui)' THEN 'Restaurantes' WHEN t.description ~* '(costco|kroger|target|whole foods|wf dallas|walmart|soriana|chedraui|la suprema market|dollar tree)' THEN 'Supermercado' WHEN t.description ~* '(city of frisco utilities|municipal online payments|atmos energy|gexa energy|telcel|telmex|total play|ntta autochargeplan|dino clean car wash|prosper ford|mobile x global)' THEN 'Servicios' WHEN t.description ~* '(oxxo|7-eleven|circle k|qt|racetrac|buc-ee''s|365 vend)' THEN 'Conveniencia' WHEN t.description ~* '(walgreens|urgent care|pharmacy)' THEN 'Salud' WHEN t.description ~* '(dancemakers|sci-tech)' THEN 'Entretenimiento' WHEN t.description ~* '(infonavit)' THEN 'Renta/Hipoteca' WHEN t.description ~* '(marshalls|supercuts)' THEN 'Ropa' ELSE 'Sin categor\u00eda' END AS category, CASE WHEN a.currency = 'MXN' THEN t.amount WHEN a.currency = 'MXN' AND 'MXN' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND 'MXN' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END AS display_amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '.*') \nSELECT 'Spend' AS metric, SUM(CASE WHEN category = 'Transferencia' THEN ABS(display_amount) ELSE 0 END) AS \"Transferencia\", SUM(CASE WHEN category = 'Otros' THEN ABS(display_amount) ELSE 0 END) AS \"Otros\", SUM(CASE WHEN category = 'Sin categor\u00eda' THEN ABS(display_amount) ELSE 0 END) AS \"Sin categor\u00eda\", SUM(CASE WHEN category = 'Renta/Hipoteca' THEN ABS(display_amount) ELSE 0 END) AS \"Renta/Hipoteca\", SUM(CASE WHEN category = 'Seguros' THEN ABS(display_amount) ELSE 0 END) AS \"Seguros\", SUM(CASE WHEN category = 'Restaurantes' THEN ABS(display_amount) ELSE 0 END) AS \"Restaurantes\", SUM(CASE WHEN category = 'Supermercado' THEN ABS(display_amount) ELSE 0 END) AS \"Supermercado\", SUM(CASE WHEN category = 'Mascotas' THEN ABS(display_amount) ELSE 0 END) AS \"Mascotas\", SUM(CASE WHEN category = 'Gasolina' THEN ABS(display_amount) ELSE 0 END) AS \"Gasolina\", SUM(CASE WHEN category = 'Salud' THEN ABS(display_amount) ELSE 0 END) AS \"Salud\" FROM classified",
           "format": "table"
         }
       ],
@@ -467,8 +467,7 @@
             "percent"
           ],
           "calcs": [
-            "value",
-            "percent"
+            "value"
           ]
         },
         "tooltip": {
@@ -478,7 +477,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "decimals": 2,
+          "decimals": 0,
           "mappings": [],
           "custom": {
             "hideFrom": {
@@ -545,7 +544,7 @@
       "targets": [
         {
           "refId": "A",
-          "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), \ntx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS source, CASE WHEN a.currency = 'MXN' THEN t.amount WHEN a.currency = 'MXN' AND 'MXN' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND 'MXN' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount > 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '.*') \nSELECT source AS source, ROUND(SUM(amount)::numeric, 2) AS total FROM tx GROUP BY source ORDER BY total DESC LIMIT 12",
+          "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), \ntx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS source, CASE WHEN a.currency = 'MXN' THEN t.amount WHEN a.currency = 'MXN' AND 'MXN' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND 'MXN' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount > 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '.*'), \ntop_sources AS (SELECT source, ROUND(SUM(amount)::numeric, 2) AS total FROM tx GROUP BY source ORDER BY total DESC LIMIT 10)\nSELECT 'Income' AS metric, SUM(CASE WHEN source = (SELECT source FROM top_sources LIMIT 1 OFFSET 0) THEN total ELSE 0 END) AS source1, SUM(CASE WHEN source = (SELECT source FROM top_sources LIMIT 1 OFFSET 1) THEN total ELSE 0 END) AS source2, SUM(CASE WHEN source = (SELECT source FROM top_sources LIMIT 1 OFFSET 2) THEN total ELSE 0 END) AS source3, SUM(CASE WHEN source = (SELECT source FROM top_sources LIMIT 1 OFFSET 3) THEN total ELSE 0 END) AS source4, SUM(CASE WHEN source = (SELECT source FROM top_sources LIMIT 1 OFFSET 4) THEN total ELSE 0 END) AS source5 FROM top_sources",
           "format": "table"
         }
       ],
@@ -563,8 +562,7 @@
             "percent"
           ],
           "calcs": [
-            "value",
-            "percent"
+            "value"
           ]
         },
         "tooltip": {
@@ -574,7 +572,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "decimals": 2,
+          "decimals": 0,
           "mappings": [],
           "custom": {
             "hideFrom": {
