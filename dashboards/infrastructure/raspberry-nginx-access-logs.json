@@ -2,13 +2,7 @@
   "id": null,
   "uid": "raspberry-nginx-access",
   "title": "Raspberry Pi nginx Access Logs",
-  "tags": [
-    "infrastructure",
-    "logs",
-    "loki",
-    "nginx",
-    "raspberry"
-  ],
+  "tags": ["infrastructure", "logs", "loki", "nginx", "raspberry"],
   "timezone": "browser",
   "schemaVersion": 42,
   "version": 3,
@@ -120,14 +114,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])) or vector(0))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range]))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "values": false
         },
         "graphMode": "none",
@@ -154,14 +146,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"4..\"} [$__range])) or vector(0))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"4..\"} [$__range]))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "values": false
         },
         "graphMode": "none",
@@ -201,14 +191,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"5..\"} [$__range])) or vector(0))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"5..\"} [$__range]))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "values": false
         },
         "graphMode": "none",
@@ -257,9 +245,7 @@
       ],
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "values": false
         },
         "graphMode": "none"
@@ -290,7 +276,7 @@
         },
         {
           "refId": "B",
-          "expr": "vector(0)",
+          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\"} [$__interval])) * 0",
           "legendFormat": "traefik {{router}}"
         }
       ],
@@ -348,7 +334,7 @@
         },
         {
           "refId": "B",
-          "expr": "vector(0)",
+          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\"} [$__interval])) * 0",
           "legendFormat": "traefik {{router}}"
         }
       ],
@@ -402,7 +388,7 @@
         },
         {
           "refId": "B",
-          "expr": "vector(0)",
+          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\"} [$__interval])) * 0",
           "legendFormat": "traefik {{router}}"
         }
       ],
@@ -543,14 +529,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])) or vector(0))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "values": false
         },
         "graphMode": "none",
@@ -737,7 +721,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "vector(0)",
+          "expr": "topk(10, sum by (router) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
           "legendFormat": "{{router}}"
         }
       ],
@@ -759,7 +743,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "vector(0)",
+          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -781,7 +765,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "vector(0)",
+          "expr": "topk(10, sum by (status) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
           "legendFormat": "{{status}}"
         }
       ],
@@ -803,7 +787,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "vector(0)",
+          "expr": "topk(10, sum by (service) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
           "legendFormat": "{{service_url}}"
         }
       ],
@@ -829,7 +813,7 @@
         },
         {
           "refId": "B",
-          "expr": "vector(0)"
+          "expr": "{job=\"nginx-access\", host=~\"${host:regex}\"} |= \"__never_match__\""
         }
       ],
       "options": {
