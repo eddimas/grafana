@@ -3,11 +3,18 @@
   "uid": "personal-finance-overview",
   "version": 1,
   "schemaVersion": 39,
-  "tags": ["finance", "personal", "sql"],
+  "tags": [
+    "finance",
+    "personal",
+    "sql"
+  ],
   "timezone": "browser",
   "fiscalYearStartMonth": 0,
   "refresh": "5m",
-  "time": { "from": "now-6M", "to": "now" },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
   "timepicker": {},
   "templating": {
     "list": [
@@ -15,8 +22,14 @@
         "name": "account",
         "label": "Account",
         "type": "query",
-        "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
-        "query": "SELECT name FROM finance.accounts WHERE is_active = true ORDER BY name",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "finance-pg"
+        },
+        "query": {
+          "rawSql": "SELECT name FROM finance.accounts WHERE is_active = true ORDER BY name",
+          "format": "table"
+        },
         "refresh": 1,
         "includeAll": true,
         "multi": true,
@@ -27,8 +40,14 @@
         "name": "category",
         "label": "Category",
         "type": "query",
-        "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
-        "query": "SELECT name FROM finance.categories ORDER BY cat_type, name",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "finance-pg"
+        },
+        "query": {
+          "rawSql": "SELECT name FROM finance.categories ORDER BY cat_type, name",
+          "format": "table"
+        },
         "refresh": 1,
         "includeAll": true,
         "multi": true,
@@ -42,8 +61,16 @@
       "id": 1,
       "type": "stat",
       "title": "Total Expenses This Month",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -52,7 +79,11 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "graphMode": "none",
         "colorMode": "background"
       },
@@ -63,9 +94,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": 0 },
-              { "color": "yellow", "value": 10000 },
-              { "color": "red", "value": 20000 }
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 10000
+              },
+              {
+                "color": "red",
+                "value": 20000
+              }
             ]
           }
         }
@@ -75,8 +115,16 @@
       "id": 2,
       "type": "stat",
       "title": "Total Income This Month",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -85,7 +133,11 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "graphMode": "none",
         "colorMode": "background"
       },
@@ -96,9 +148,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": 0 },
-              { "color": "yellow", "value": 5000 },
-              { "color": "green", "value": 15000 }
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 5000
+              },
+              {
+                "color": "green",
+                "value": 15000
+              }
             ]
           }
         }
@@ -108,8 +169,16 @@
       "id": 3,
       "type": "stat",
       "title": "Net Balance This Month",
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -118,7 +187,11 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "graphMode": "none",
         "colorMode": "background"
       },
@@ -129,9 +202,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": -99999 },
-              { "color": "yellow", "value": 0 },
-              { "color": "green", "value": 1000 }
+              {
+                "color": "red",
+                "value": -99999
+              },
+              {
+                "color": "yellow",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1000
+              }
             ]
           }
         }
@@ -141,8 +223,16 @@
       "id": 4,
       "type": "stat",
       "title": "Transactions This Month",
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -151,18 +241,35 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "graphMode": "none",
         "colorMode": "value"
       },
-      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0
+        }
+      }
     },
     {
       "id": 5,
       "type": "timeseries",
       "title": "Monthly Income vs Expenses",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -171,13 +278,49 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
       },
       "fieldConfig": {
-        "defaults": { "unit": "currencyMXN", "custom": { "lineWidth": 2 } },
+        "defaults": {
+          "unit": "currencyMXN",
+          "custom": {
+            "lineWidth": 2
+          }
+        },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Expenses" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] },
-          { "matcher": { "id": "byName", "options": "Income" },   "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expenses"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Income"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
         ]
       }
     },
@@ -185,8 +328,16 @@
       "id": 6,
       "type": "piechart",
       "title": "Expenses by Category (This Month)",
-      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 12 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -196,16 +347,35 @@
       ],
       "options": {
         "pieType": "pie",
-        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        }
       },
-      "fieldConfig": { "defaults": { "unit": "currencyMXN" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyMXN"
+        }
+      }
     },
     {
       "id": 7,
       "type": "bargauge",
       "title": "Budget vs Actual (This Month)",
-      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 12 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -216,18 +386,32 @@
       "options": {
         "orientation": "horizontal",
         "displayMode": "lcd",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
       },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "min": 0, "max": 120,
+          "min": 0,
+          "max": 120,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green",  "value": 0 },
-              { "color": "yellow", "value": 80 },
-              { "color": "red",    "value": 100 }
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
             ]
           }
         }
@@ -237,8 +421,16 @@
       "id": 8,
       "type": "table",
       "title": "Top Expenses This Month",
-      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 21 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -246,10 +438,23 @@
           "format": "table"
         }
       ],
-      "options": { "showHeader": true },
+      "options": {
+        "showHeader": true
+      },
       "fieldConfig": {
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Amount" }, "properties": [{ "id": "unit", "value": "currencyMXN" }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyMXN"
+              }
+            ]
+          }
         ]
       }
     },
@@ -257,8 +462,16 @@
       "id": 9,
       "type": "timeseries",
       "title": "Daily Spending (Last 30 days)",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -266,14 +479,26 @@
           "format": "table"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "currencyMXN" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyMXN"
+        }
+      }
     },
     {
       "id": 10,
       "type": "table",
       "title": "Monthly Summary (Last 12 months)",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 29 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -281,12 +506,59 @@
           "format": "table"
         }
       ],
-      "options": { "showHeader": true },
+      "options": {
+        "showHeader": true
+      },
       "fieldConfig": {
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Income" },   "properties": [{ "id": "unit", "value": "currencyMXN" }, { "id": "custom.width", "value": 120 }] },
-          { "matcher": { "id": "byName", "options": "Expenses" }, "properties": [{ "id": "unit", "value": "currencyMXN" }, { "id": "custom.width", "value": 120 }] },
-          { "matcher": { "id": "byName", "options": "Net" },      "properties": [{ "id": "unit", "value": "currencyMXN" }, { "id": "custom.width", "value": 120 }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Income"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyMXN"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expenses"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyMXN"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyMXN"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
         ]
       }
     },
@@ -294,8 +566,16 @@
       "id": 11,
       "type": "table",
       "title": "Recurring Transactions",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 38 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -303,10 +583,23 @@
           "format": "table"
         }
       ],
-      "options": { "showHeader": true },
+      "options": {
+        "showHeader": true
+      },
       "fieldConfig": {
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Avg Amount" }, "properties": [{ "id": "unit", "value": "currencyMXN" }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyMXN"
+              }
+            ]
+          }
         ]
       }
     },
@@ -314,8 +607,16 @@
       "id": 12,
       "type": "bargauge",
       "title": "Top Categories YTD",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 38 },
-      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "finance-pg"
+      },
       "targets": [
         {
           "refId": "A",
@@ -326,9 +627,17 @@
       "options": {
         "orientation": "horizontal",
         "displayMode": "gradient",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
       },
-      "fieldConfig": { "defaults": { "unit": "currencyMXN" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyMXN"
+        }
+      }
     }
   ]
 }
