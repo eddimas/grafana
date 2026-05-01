@@ -1,8 +1,8 @@
 {
   "title": "Personal Finance Overview",
-  "description": "Financial command center with automatic MXN/USD conversion, clear interest tracking, and monthly cash-flow visibility.",
+  "description": "Financial command center with automatic MXN/USD conversion, simplified visual charts, and explicit interest tracking.",
   "uid": "personal-finance-overview",
-  "version": 6,
+  "version": 7,
   "schemaVersion": 39,
   "tags": ["finance", "personal", "sql"],
   "timezone": "browser",
@@ -131,87 +131,87 @@
     },
     {
       "id": 9,
-      "type": "table",
-      "title": "Spend by Category (60d, ${display_currency})",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 20 },
+      "type": "piechart",
+      "title": "Spend Mix by Category (60d)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 20 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
       "targets": [
-        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), base AS (SELECT COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN t.amount WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END AS display_amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account'), cat AS (SELECT category, COUNT(*) AS txns, ROUND(ABS(SUM(display_amount))::numeric, 2) AS total, ROUND(AVG(ABS(display_amount))::numeric, 2) AS avg_amount FROM base GROUP BY 1) SELECT category AS \"Category\", txns AS \"Txns\", total AS \"Total\", avg_amount AS \"Avg Amount\", ROUND(100.0 * total / NULLIF((SELECT SUM(total) FROM cat), 0), 1) AS \"Share %\" FROM cat ORDER BY total DESC", "format": "table" }
+        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), base AS (SELECT COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN t.amount WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END AS display_amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT category AS \"Category\", ROUND(ABS(SUM(display_amount))::numeric, 2) AS \"Total\" FROM base GROUP BY category ORDER BY \"Total\" DESC LIMIT 12", "format": "table" }
       ],
-      "options": { "showHeader": true },
-      "fieldConfig": { "overrides": [{ "matcher": { "id": "byName", "options": "Total" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }, { "matcher": { "id": "byName", "options": "Avg Amount" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }] }
+      "options": { "pieType": "pie", "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] } },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1 } }
     },
     {
       "id": 10,
-      "type": "table",
-      "title": "Top Merchants by Spend (60d, ${display_currency})",
-      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 29 },
+      "type": "bargauge",
+      "title": "Top Merchants by Spend (60d)",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 20 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
       "targets": [
-        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), tx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS merchant, COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount, t.txn_date FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT merchant AS \"Merchant\", category AS \"Category\", COUNT(*) AS \"Txns\", ROUND(SUM(amount)::numeric, 2) AS \"Total\", ROUND(AVG(amount)::numeric, 2) AS \"Avg Amount\", MAX(txn_date) AS \"Last Date\" FROM tx GROUP BY merchant, category ORDER BY \"Total\" DESC LIMIT 20", "format": "table" }
+        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), tx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS merchant, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT merchant AS \"Merchant\", ROUND(SUM(amount)::numeric, 2) AS \"Total\" FROM tx GROUP BY merchant ORDER BY \"Total\" DESC LIMIT 12", "format": "table" }
       ],
-      "options": { "showHeader": true },
-      "fieldConfig": { "overrides": [{ "matcher": { "id": "byName", "options": "Total" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }, { "matcher": { "id": "byName", "options": "Avg Amount" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }] }
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1 } }
     },
     {
       "id": 11,
-      "type": "table",
-      "title": "Most Frequent Merchants (60d, ${display_currency})",
-      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 29 },
+      "type": "piechart",
+      "title": "Income Sources (60d)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 29 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
       "targets": [
-        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), tx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS merchant, COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount, t.txn_date FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT merchant AS \"Merchant\", category AS \"Category\", COUNT(*) AS \"Txns\", ROUND(SUM(amount)::numeric, 2) AS \"Total\", ROUND(AVG(amount)::numeric, 2) AS \"Avg Amount\", MAX(txn_date) AS \"Last Date\" FROM tx GROUP BY merchant, category HAVING COUNT(*) >= 2 ORDER BY \"Txns\" DESC, \"Total\" DESC LIMIT 20", "format": "table" }
+        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), tx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS source, CASE WHEN a.currency = '$display_currency' THEN t.amount WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount > 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT source AS \"Source\", ROUND(SUM(amount)::numeric, 2) AS \"Total\" FROM tx GROUP BY source ORDER BY \"Total\" DESC LIMIT 12", "format": "table" }
       ],
-      "options": { "showHeader": true },
-      "fieldConfig": { "overrides": [{ "matcher": { "id": "byName", "options": "Total" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }, { "matcher": { "id": "byName", "options": "Avg Amount" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }] }
+      "options": { "pieType": "pie", "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] } },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1 } }
     },
     {
       "id": 12,
-      "type": "table",
-      "title": "Largest Outflows (60d, ${display_currency})",
-      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 38 },
+      "type": "timeseries",
+      "title": "Interest & Fees Over Time (60d)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 29 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
       "targets": [
-        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), base AS (SELECT t.txn_date, a.name AS account, t.description, COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT txn_date AS \"Date\", account AS \"Account\", description AS \"Description\", category AS \"Category\", amount AS \"Amount\" FROM base ORDER BY amount DESC, txn_date DESC LIMIT 20", "format": "table" }
+        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), base AS (SELECT date_trunc('day', t.txn_date)::timestamp AS time, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account' AND (t.description ILIKE '%INTEREST%' OR t.description ILIKE '%INTERÉS%' OR t.description ILIKE '%FINANCE CHARGE%' OR t.description ILIKE '%CARGO POR INTERESES%' OR t.description ILIKE '%COMMISSION%' OR t.description ILIKE '%FEE%')) SELECT time, SUM(amount) AS \"Interest & Fees\" FROM base GROUP BY time ORDER BY time", "format": "table" }
       ],
-      "options": { "showHeader": true },
-      "fieldConfig": { "overrides": [{ "matcher": { "id": "byName", "options": "Amount" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }] }
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1, "custom": { "lineWidth": 2 } } }
     },
     {
       "id": 13,
-      "type": "table",
-      "title": "Recurring Payment Streams (60d, ${display_currency})",
-      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 38 },
+      "type": "bargauge",
+      "title": "Recurring Payment Streams (60d)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 37 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
       "targets": [
-        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), tx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS merchant, COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount, t.txn_date FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT merchant AS \"Merchant\", category AS \"Category\", ROUND(AVG(amount)::numeric, 2) AS \"Avg Amount\", COUNT(*) AS \"Txns\", ROUND(SUM(amount)::numeric, 2) AS \"Total\", MAX(txn_date) AS \"Last Date\" FROM tx GROUP BY merchant, category HAVING COUNT(*) >= 2 ORDER BY \"Txns\" DESC, \"Avg Amount\" DESC LIMIT 20", "format": "table" }
+        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), tx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS merchant, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT merchant AS \"Merchant\", ROUND(AVG(amount)::numeric, 2) AS \"Avg Amount\" FROM tx GROUP BY merchant HAVING COUNT(*) >= 2 ORDER BY \"Avg Amount\" DESC LIMIT 10", "format": "table" }
       ],
-      "options": { "showHeader": true },
-      "fieldConfig": { "overrides": [{ "matcher": { "id": "byName", "options": "Avg Amount" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }, { "matcher": { "id": "byName", "options": "Total" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }] }
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1 } }
     },
     {
       "id": 14,
-      "type": "table",
-      "title": "Income Sources (60d, ${display_currency})",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 47 },
+      "type": "bargauge",
+      "title": "Largest Outflows (60d)",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 37 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
       "targets": [
-        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), tx AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS merchant, COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount, t.txn_date FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount > 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT merchant AS \"Source\", category AS \"Category\", COUNT(*) AS \"Txns\", ROUND(SUM(amount)::numeric, 2) AS \"Total\", ROUND(AVG(amount)::numeric, 2) AS \"Avg Amount\", MAX(txn_date) AS \"Last Date\" FROM tx GROUP BY merchant, category ORDER BY \"Total\" DESC LIMIT 20", "format": "table" }
+        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), base AS (SELECT COALESCE(NULLIF(t.merchant, ''), regexp_replace(regexp_replace(t.description, '\\s*;\\s*TARJETA DIGITAL.*$', '', 'i'), '\\s+', ' ', 'g')) AS merchant, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account') SELECT merchant AS \"Merchant\", ROUND(MAX(amount)::numeric, 2) AS \"Largest Amount\" FROM base GROUP BY merchant ORDER BY \"Largest Amount\" DESC LIMIT 10", "format": "table" }
       ],
-      "options": { "showHeader": true },
-      "fieldConfig": { "overrides": [{ "matcher": { "id": "byName", "options": "Total" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }, { "matcher": { "id": "byName", "options": "Avg Amount" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }] }
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1 } }
     },
     {
       "id": 15,
-      "type": "table",
-      "title": "Interest, Fees & Charges (60d, ${display_currency})",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 56 },
+      "type": "stat",
+      "title": "Interest & Fees Total (60d)",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 46 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
       "targets": [
-        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), base AS (SELECT t.txn_date, a.name AS account, t.description, COALESCE(c.name, 'Sin categoría') AS category, CASE WHEN a.currency = '$display_currency' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account' AND (t.description ILIKE '%INTEREST%' OR t.description ILIKE '%INTERÉS%' OR t.description ILIKE '%FINANCE CHARGE%' OR t.description ILIKE '%CARGO POR INTERESES%' OR t.description ILIKE '%COMMISSION%' OR t.description ILIKE '%FEE%') ) SELECT txn_date AS \"Date\", account AS \"Account\", description AS \"Description\", category AS \"Category\", amount AS \"Amount\" FROM base ORDER BY amount DESC, txn_date DESC LIMIT 50", "format": "table" }
+        { "refId": "A", "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate) SELECT COALESCE(ABS(SUM(CASE WHEN a.currency = '$display_currency' THEN t.amount WHEN a.currency = 'MXN' AND '$display_currency' = 'USD' THEN t.amount / fx.rate WHEN a.currency = 'USD' AND '$display_currency' = 'MXN' THEN t.amount * fx.rate ELSE t.amount END)), 0) AS value FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id CROSS JOIN fx WHERE t.amount < 0 AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '$account' AND (t.description ILIKE '%INTEREST%' OR t.description ILIKE '%INTERÉS%' OR t.description ILIKE '%FINANCE CHARGE%' OR t.description ILIKE '%CARGO POR INTERESES%' OR t.description ILIKE '%COMMISSION%' OR t.description ILIKE '%FEE%')", "format": "table" }
       ],
-      "options": { "showHeader": true },
-      "fieldConfig": { "overrides": [{ "matcher": { "id": "byName", "options": "Amount" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] }] }
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "none", "colorMode": "background" },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": 0 }, { "color": "yellow", "value": 200 }, { "color": "red", "value": 500 }] } } }
     }
   ]
 }
