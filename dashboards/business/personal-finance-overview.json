@@ -1,0 +1,334 @@
+{
+  "title": "Personal Finance Overview",
+  "uid": "personal-finance-overview",
+  "version": 1,
+  "schemaVersion": 39,
+  "tags": ["finance", "personal", "sql"],
+  "timezone": "browser",
+  "fiscalYearStartMonth": 0,
+  "refresh": "5m",
+  "time": { "from": "now-6M", "to": "now" },
+  "timepicker": {},
+  "templating": {
+    "list": [
+      {
+        "name": "account",
+        "label": "Account",
+        "type": "query",
+        "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+        "query": "SELECT name FROM finance.accounts WHERE is_active = true ORDER BY name",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*",
+        "current": {}
+      },
+      {
+        "name": "category",
+        "label": "Category",
+        "type": "query",
+        "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+        "query": "SELECT name FROM finance.categories ORDER BY cat_type, name",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*",
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total Expenses This Month",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT ABS(SUM(amount)) as value FROM finance.transactions WHERE amount < 0 AND date_trunc('month', txn_date) = date_trunc('month', CURRENT_DATE)",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyMXN",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "yellow", "value": 10000 },
+              { "color": "red", "value": 20000 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Total Income This Month",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT SUM(amount) as value FROM finance.transactions WHERE amount > 0 AND date_trunc('month', txn_date) = date_trunc('month', CURRENT_DATE)",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyMXN",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "yellow", "value": 5000 },
+              { "color": "green", "value": 15000 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Net Balance This Month",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT SUM(amount) as value FROM finance.transactions WHERE date_trunc('month', txn_date) = date_trunc('month', CURRENT_DATE) AND is_internal = false",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyMXN",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": -99999 },
+              { "color": "yellow", "value": 0 },
+              { "color": "green", "value": 1000 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Transactions This Month",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT COUNT(*) as value FROM finance.transactions WHERE date_trunc('month', txn_date) = date_trunc('month', CURRENT_DATE)",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "graphMode": "none",
+        "colorMode": "value"
+      },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 } }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Monthly Income vs Expenses",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT date_trunc('month', txn_date) as time, SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) as \"Income\", ABS(SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END)) as \"Expenses\" FROM finance.transactions WHERE is_internal = false AND txn_date >= $__timeFrom()::date GROUP BY 1 ORDER BY 1",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "currencyMXN", "custom": { "lineWidth": 2 } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Expenses" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] },
+          { "matcher": { "id": "byName", "options": "Income" },   "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }] }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "type": "piechart",
+      "title": "Expenses by Category (This Month)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT c.name as category, ABS(SUM(t.amount)) as total FROM finance.transactions t LEFT JOIN finance.categories c ON c.id = t.category_id WHERE t.amount < 0 AND date_trunc('month', t.txn_date) = date_trunc('month', CURRENT_DATE) GROUP BY c.name ORDER BY total DESC LIMIT 15",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "pieType": "pie",
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }
+      },
+      "fieldConfig": { "defaults": { "unit": "currencyMXN" } }
+    },
+    {
+      "id": 7,
+      "type": "bargauge",
+      "title": "Budget vs Actual (This Month)",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT category, pct_used as \"% Used\", budget, actual FROM finance.v_budget_vs_actual WHERE year = EXTRACT(year FROM CURRENT_DATE) AND month = EXTRACT(month FROM CURRENT_DATE) ORDER BY pct_used DESC NULLS LAST",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "lcd",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0, "max": 120,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": 0 },
+              { "color": "yellow", "value": 80 },
+              { "color": "red",    "value": 100 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Top Expenses This Month",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 21 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT t.txn_date as \"Date\", t.description as \"Description\", c.name as \"Category\", ABS(t.amount) as \"Amount\", a.name as \"Account\" FROM finance.transactions t LEFT JOIN finance.categories c ON c.id = t.category_id JOIN finance.accounts a ON a.id = t.account_id WHERE t.amount < 0 AND date_trunc('month', t.txn_date) = date_trunc('month', CURRENT_DATE) ORDER BY t.amount ASC LIMIT 20",
+          "format": "table"
+        }
+      ],
+      "options": { "showHeader": true },
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Amount" }, "properties": [{ "id": "unit", "value": "currencyMXN" }] }
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Daily Spending (Last 30 days)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT txn_date as time, ABS(SUM(amount)) as \"Daily Spend\" FROM finance.transactions WHERE amount < 0 AND txn_date >= CURRENT_DATE - INTERVAL '30 days' GROUP BY txn_date ORDER BY txn_date",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currencyMXN" } }
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Monthly Summary (Last 12 months)",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 29 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT to_char(month, 'YYYY-MM') as \"Month\", SUM(CASE WHEN cat_type='income' THEN total ELSE 0 END) as \"Income\", ABS(SUM(CASE WHEN cat_type='expense' THEN total ELSE 0 END)) as \"Expenses\", SUM(CASE WHEN cat_type='income' THEN total ELSE 0 END) + SUM(CASE WHEN cat_type='expense' THEN total ELSE 0 END) as \"Net\", SUM(txn_count) as \"Transactions\" FROM finance.v_monthly_summary WHERE month >= date_trunc('month', CURRENT_DATE - INTERVAL '12 months') GROUP BY month ORDER BY month DESC",
+          "format": "table"
+        }
+      ],
+      "options": { "showHeader": true },
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Income" },   "properties": [{ "id": "unit", "value": "currencyMXN" }, { "id": "custom.width", "value": 120 }] },
+          { "matcher": { "id": "byName", "options": "Expenses" }, "properties": [{ "id": "unit", "value": "currencyMXN" }, { "id": "custom.width", "value": 120 }] },
+          { "matcher": { "id": "byName", "options": "Net" },      "properties": [{ "id": "unit", "value": "currencyMXN" }, { "id": "custom.width", "value": 120 }] }
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Recurring Transactions",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 38 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT description as \"Description\", c.name as \"Category\", AVG(t.amount) as \"Avg Amount\", COUNT(*) as \"Occurrences\", MAX(t.txn_date) as \"Last Date\" FROM finance.transactions t LEFT JOIN finance.categories c ON c.id = t.category_id WHERE t.is_recurring = true GROUP BY t.description, c.name ORDER BY AVG(t.amount) ASC LIMIT 20",
+          "format": "table"
+        }
+      ],
+      "options": { "showHeader": true },
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Avg Amount" }, "properties": [{ "id": "unit", "value": "currencyMXN" }] }
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "type": "bargauge",
+      "title": "Top Categories YTD",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 38 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "finance-pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT c.name as \"category\", ABS(SUM(t.amount)) as \"total\" FROM finance.transactions t LEFT JOIN finance.categories c ON c.id = t.category_id WHERE t.amount < 0 AND EXTRACT(year FROM t.txn_date) = EXTRACT(year FROM CURRENT_DATE) GROUP BY c.name ORDER BY total DESC LIMIT 10",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": { "defaults": { "unit": "currencyMXN" } }
+    }
+  ]
+}
