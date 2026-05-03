@@ -379,23 +379,34 @@
       "targets": [
         {
           "refId": "A",
-          "rawSql": "WITH fx AS (SELECT COALESCE((SELECT rate FROM finance.v_latest_fx_rates WHERE base_currency = 'USD' AND quote_currency = 'MXN' LIMIT 1), 18.5) AS rate), \nbase AS (SELECT date_trunc('day', t.txn_date)::timestamp AS time, CASE WHEN COALESCE(c.name, 'Sin categor\u00eda') <> 'Sin categor\u00eda' THEN c.name WHEN t.description ~* '(openai|chatgpt|cloudflare|github|google one|apple tv|apple tv shows|amazon web services|aws|canva|notion|adobe|spotify|netflix)' THEN 'Suscripciones' WHEN t.description ~* '(panera|velvet taco|first watch|ihop|mcdonald''s|in[- ]?n[- ]?out|emelias|papparoti|gill ice cream|sr\\.? ozzy|chili''s|paris baguette|denny''s|matsui)' THEN 'Restaurantes' WHEN t.description ~* '(costco|kroger|target|whole foods|wf dallas|walmart|soriana|chedraui|la suprema market|dollar tree)' THEN 'Supermercado' WHEN t.description ~* '(city of frisco utilities|municipal online payments|atmos energy|gexa energy|telcel|telmex|total play|ntta autochargeplan|dino clean car wash|prosper ford|mobile x global)' THEN 'Servicios' WHEN t.description ~* '(oxxo|7-eleven|circle k|qt|racetrac|buc-ee''s|365 vend)' THEN 'Conveniencia' WHEN t.description ~* '(walgreens|urgent care|pharmacy)' THEN 'Salud' WHEN t.description ~* '(dancemakers|sci-tech)' THEN 'Entretenimiento' WHEN t.description ~* '(infonavit)' THEN 'Renta/Hipoteca' WHEN t.description ~* '(marshalls|supercuts)' THEN 'Ropa' ELSE 'Otros' END AS category, CASE WHEN a.currency = 'MXN' THEN ABS(t.amount) WHEN a.currency = 'MXN' AND 'MXN' = 'USD' THEN ABS(t.amount) / fx.rate WHEN a.currency = 'USD' AND 'MXN' = 'MXN' THEN ABS(t.amount) * fx.rate ELSE ABS(t.amount) END AS amount FROM finance.transactions t JOIN finance.accounts a ON a.id = t.account_id LEFT JOIN finance.categories c ON c.id = t.category_id CROSS JOIN fx WHERE t.amount < 0 AND $__timeFilter(t.txn_date) AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' AND a.name ~ '.*') \nSELECT $__timeGroupAlias(time, '1d'), category, COALESCE(SUM(amount), 0) AS \"value\" FROM base GROUP BY 1, category ORDER BY 1, category",
+          "rawSql": "WITH base AS (\n  SELECT \n    date_trunc('day', t.txn_date)::date AS time,\n    CASE \n      WHEN COALESCE(c.name, 'Sin categor\u00eda') <> 'Sin categor\u00eda' THEN c.name \n      WHEN t.description ~* '(openai|chatgpt|cloudflare|github|google one|apple tv|apple tv shows|amazon web services|aws|canva|notion|adobe|spotify|netflix)' THEN 'Suscripciones' \n      WHEN t.description ~* '(panera|velvet taco|first watch|ihop|mcdonald''s|in[- ]?n[- ]?out|emelias|papparoti|gill ice cream|sr\\.? ozzy|chili''s|paris baguette|denny''s|matsui)' THEN 'Restaurantes' \n      WHEN t.description ~* '(costco|kroger|target|whole foods|wf dallas|walmart|soriana|chedraui|la suprema market|dollar tree)' THEN 'Supermercado' \n      WHEN t.description ~* '(city of frisco utilities|municipal online payments|atmos energy|gexa energy|telcel|telmex|total play|ntta autochargeplan|dino clean car wash|prosper ford|mobile x global)' THEN 'Servicios' \n      WHEN t.description ~* '(oxxo|7-eleven|circle k|qt|racetrac|buc-ee''s|365 vend)' THEN 'Conveniencia' \n      WHEN t.description ~* '(walgreens|urgent care|pharmacy)' THEN 'Salud' \n      WHEN t.description ~* '(dancemakers|sci-tech)' THEN 'Entretenimiento' \n      WHEN t.description ~* '(infonavit)' THEN 'Renta/Hipoteca' \n      WHEN t.description ~* '(marshalls|supercuts)' THEN 'Ropa' \n      ELSE 'Otros' \n    END AS category, \n    ABS(t.amount) AS amount \n  FROM finance.transactions t \n  JOIN finance.accounts a ON a.id = t.account_id \n  LEFT JOIN finance.categories c ON c.id = t.category_id \n  WHERE t.amount < 0 \n    AND t.txn_date >= CURRENT_DATE - INTERVAL '60 days' \n    AND a.name ~ '.*'\n)\nSELECT time, category, ROUND(SUM(amount)::numeric, 2) AS value \nFROM base \nGROUP BY time, category \nORDER BY time, category",
           "format": "table"
         }
       ],
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "showLegend": true,
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
         }
       },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "decimals": 1,
+          "decimals": 0,
           "custom": {
-            "lineWidth": 2
+            "lineWidth": 2,
+            "fillOpacity": 0,
+            "showPoints": "auto",
+            "spanNulls": false
           }
         },
         "overrides": []
