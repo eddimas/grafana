@@ -348,38 +348,46 @@
     {
       "id": 9,
       "title": "System Memory Usage",
-      "type": "stat",
+      "type": "gauge",
       "targets": [
         {
           "refId": "A",
-          "expr": "node_memory_MemTotal_bytes{instance=\"truenas\"} / 1024^3",
-          "legendFormat": "Total Memory"
+          "expr": "100 * ((node_memory_MemTotal_bytes{instance=\"truenas\"} - node_memory_MemAvailable_bytes{instance=\"truenas\"}) / node_memory_MemTotal_bytes{instance=\"truenas\"})",
+          "legendFormat": "Memory %"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
+          "calcs": ["lastNotNull"]
         },
-        "graphMode": "none",
-        "colorMode": "background"
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "percent",
           "min": 0,
+          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "green",
                 "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
               }
             ]
           }
         }
       },
-      "description": "⚠️ Note: MemAvailable metric not available in TrueNAS (FreeBSD). Showing total memory instead. Will be updated in v2.0 with exporter improvements.",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -390,38 +398,44 @@
     {
       "id": 10,
       "title": "System Load Average",
-      "type": "stat",
+      "type": "timeseries",
       "targets": [
         {
           "refId": "A",
-          "expr": "node_cpu_cores{instance=\"truenas\"}",
-          "legendFormat": "CPU Cores"
+          "expr": "node_load1{instance=\"truenas\"}",
+          "legendFormat": "Load 1m"
+        },
+        {
+          "refId": "B",
+          "expr": "node_load5{instance=\"truenas\"}",
+          "legendFormat": "Load 5m"
+        },
+        {
+          "refId": "C",
+          "expr": "node_load15{instance=\"truenas\"}",
+          "legendFormat": "Load 15m"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
-        },
-        "graphMode": "none",
-        "colorMode": "background"
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
           "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
+          "custom": {
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
           }
         }
       },
-      "description": "⚠️ Note: Load average metrics not available in TrueNAS (FreeBSD). Showing CPU cores instead. Will be updated in v2.0 with exporter improvements.",
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -432,38 +446,34 @@
     {
       "id": 11,
       "title": "Memory Available Timeline",
-      "type": "stat",
+      "type": "timeseries",
       "targets": [
         {
           "refId": "A",
-          "expr": "node_memory_MemTotal_bytes{instance=\"truenas\"} / 1024^3",
-          "legendFormat": "Total Memory (GB)"
+          "expr": "node_memory_MemAvailable_bytes{instance=\"truenas\"} / 1024^3",
+          "legendFormat": "Available (GB)"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
-        },
-        "graphMode": "none",
-        "colorMode": "background"
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
           "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
+          "custom": {
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
           }
         }
       },
-      "description": "⚠️ Note: MemAvailable metric not available in TrueNAS (FreeBSD). This will be a timeline chart in v2.0 with proper memory metrics.",
+      "options": {
+        "legend": {
+          "calcs": ["mean", "min"],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
       "gridPos": {
         "h": 8,
         "w": 12,
