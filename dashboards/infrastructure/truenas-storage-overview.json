@@ -508,9 +508,181 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 21
-      }
-    }
+         "x": 12,
+         "y": 21
+       }
+     },
+     {
+       "id": 13,
+       "title": "Disk I/O Operations",
+       "type": "timeseries",
+       "targets": [
+         {
+           "refId": "A",
+           "expr": "rate(node_disk_reads_completed_total{instance=\"truenas\",device=\"sda\"}[5m])",
+           "legendFormat": "Read Ops/s ({{device}})"
+         },
+         {
+           "refId": "B",
+           "expr": "rate(node_disk_writes_completed_total{instance=\"truenas\",device=\"sda\"}[5m])",
+           "legendFormat": "Write Ops/s ({{device}})"
+         }
+       ],
+       "fieldConfig": {
+         "defaults": {
+           "unit": "ops",
+           "min": 0,
+           "custom": {
+             "hideFrom": {
+               "tooltip": false,
+               "viz": false,
+               "legend": false
+             }
+           }
+         }
+       },
+       "options": {
+         "legend": {
+           "calcs": ["mean", "max"],
+           "displayMode": "table",
+           "placement": "bottom"
+         }
+       },
+       "gridPos": {
+         "h": 8,
+         "w": 12,
+         "x": 0,
+         "y": 29
+       }
+     },
+     {
+       "id": 14,
+       "title": "Disk Throughput",
+       "type": "timeseries",
+       "targets": [
+         {
+           "refId": "A",
+           "expr": "rate(node_disk_read_bytes_total{instance=\"truenas\",device=\"sda\"}[5m])",
+           "legendFormat": "Read ({{device}})"
+         },
+         {
+           "refId": "B",
+           "expr": "rate(node_disk_written_bytes_total{instance=\"truenas\",device=\"sda\"}[5m])",
+           "legendFormat": "Write ({{device}})"
+         }
+       ],
+       "fieldConfig": {
+         "defaults": {
+           "unit": "Bps",
+           "min": 0,
+           "custom": {
+             "hideFrom": {
+               "tooltip": false,
+               "viz": false,
+               "legend": false
+             }
+           }
+         }
+       },
+       "options": {
+         "legend": {
+           "calcs": ["mean", "max"],
+           "displayMode": "table",
+           "placement": "bottom"
+         }
+       },
+       "gridPos": {
+         "h": 8,
+         "w": 12,
+         "x": 12,
+         "y": 29
+       }
+     },
+     {
+       "id": 15,
+       "title": "Network Throughput",
+       "type": "timeseries",
+       "targets": [
+         {
+           "refId": "A",
+           "expr": "rate(node_network_receive_bytes_total{instance=\"truenas\",device=\"eno1\"}[5m])",
+           "legendFormat": "RX ({{device}})"
+         },
+         {
+           "refId": "B",
+           "expr": "rate(node_network_transmit_bytes_total{instance=\"truenas\",device=\"eno1\"}[5m])",
+           "legendFormat": "TX ({{device}})"
+         }
+       ],
+       "fieldConfig": {
+         "defaults": {
+           "unit": "Bps",
+           "min": 0,
+           "custom": {
+             "hideFrom": {
+               "tooltip": false,
+               "viz": false,
+               "legend": false
+             }
+           }
+         }
+       },
+       "options": {
+         "legend": {
+           "calcs": ["mean", "max"],
+           "displayMode": "table",
+           "placement": "bottom"
+         }
+       },
+       "gridPos": {
+         "h": 8,
+         "w": 12,
+         "x": 0,
+         "y": 37
+       }
+     },
+     {
+       "id": 16,
+       "title": "Network Packets",
+       "type": "timeseries",
+       "targets": [
+         {
+           "refId": "A",
+           "expr": "rate(node_network_receive_packets_total{instance=\"truenas\",device=\"eno1\"}[5m])",
+           "legendFormat": "RX Packets/s ({{device}})"
+         },
+         {
+           "refId": "B",
+           "expr": "rate(node_network_transmit_packets_total{instance=\"truenas\",device=\"eno1\"}[5m])",
+           "legendFormat": "TX Packets/s ({{device}})"
+         }
+       ],
+       "fieldConfig": {
+         "defaults": {
+           "unit": "pps",
+           "min": 0,
+           "custom": {
+             "hideFrom": {
+               "tooltip": false,
+               "viz": false,
+               "legend": false
+             }
+           }
+         }
+       },
+       "options": {
+         "legend": {
+           "calcs": ["mean", "max"],
+           "displayMode": "table",
+           "placement": "bottom"
+         }
+       },
+       "gridPos": {
+         "h": 8,
+         "w": 12,
+         "x": 12,
+         "y": 37
+       }
+     }
   ]
 }
