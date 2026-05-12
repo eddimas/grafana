@@ -499,12 +499,12 @@
         },
         "graphMode": "none"
       },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "durationinSeconds",
-          "min": 0
-        }
-      },
+       "fieldConfig": {
+         "defaults": {
+           "unit": "durationhms",
+           "min": 0
+         }
+       },
       "gridPos": {
         "h": 8,
         "w": 12,
