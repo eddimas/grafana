@@ -26,14 +26,14 @@
           "query": "label_values(up{job=\"node-exporter\"}, instance)",
           "refId": "Host"
         },
-        "regex": "/(minisforum.*|raspberrypi-dev.*|raspberrypi-prod.*)/",
+        "regex": "/(minisforum.*|raspberrypi-dev.*|raspberrypi-prod.*|truenas.*)/",
         "multi": true,
         "includeAll": true,
-        "allValue": "minisforum.*|raspberrypi-dev.*|raspberrypi-prod.*",
+        "allValue": "minisforum.*|raspberrypi-dev.*|raspberrypi-prod.*|truenas.*",
         "current": {
           "selected": true,
           "text": "All",
-          "value": "minisforum.*|raspberrypi-dev.*|raspberrypi-prod.*"
+          "value": "minisforum.*|raspberrypi-dev.*|raspberrypi-prod.*|truenas.*"
         }
       }
     ]
