@@ -62,7 +62,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "unit": "durationhms",
           "min": 0,
           "mappings": [
             {
@@ -364,14 +364,15 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_memory_MemAvailable_bytes{instance=~\"$instance\"})",
+          "expr": "max by (instance) (100 * (node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"}))",
           "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes",
-          "min": 0
+          "unit": "percent",
+          "min": 0,
+          "max": 100
         }
       },
       "gridPos": {
@@ -388,14 +389,15 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (instance) (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"})",
+          "expr": "max by (instance) (100 * (node_filesystem_avail_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{instance=~\"$instance\", mountpoint=\"/\", fstype!~\"tmpfs|overlay|squashfs\"}))",
           "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes",
-          "min": 0
+          "unit": "percent",
+          "min": 0,
+          "max": 100
         }
       },
       "gridPos": {
