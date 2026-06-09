@@ -45,7 +45,7 @@
         "name": "host",
         "label": "Host",
         "type": "query",
-        "datasource": "Loki",
+        "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
         "query": "label_values({job=\"nginx-access\"}, host)",
         "multi": true,
         "includeAll": true,
@@ -110,11 +110,11 @@
       "id": 1,
       "type": "stat",
       "title": "Total Requests",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range]))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"}[5m]))"
         }
       ],
       "options": {
@@ -142,7 +142,7 @@
       "id": 2,
       "type": "stat",
       "title": "4xx Requests",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
@@ -187,7 +187,7 @@
       "id": 3,
       "type": "stat",
       "title": "5xx Requests",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
@@ -236,11 +236,11 @@
       "id": 4,
       "type": "stat",
       "title": "Unique Client IPs",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "count((sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range]))))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range]))"
         }
       ],
       "options": {
@@ -267,7 +267,7 @@
       "id": 5,
       "type": "timeseries",
       "title": "Requests per Second",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
@@ -325,7 +325,7 @@
       "id": 6,
       "type": "timeseries",
       "title": "4xx per Second",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
@@ -379,7 +379,7 @@
       "id": 12,
       "type": "timeseries",
       "title": "5xx per Second",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
@@ -437,11 +437,11 @@
       "id": 9,
       "type": "table",
       "title": "Top Request Paths (nginx + Traefik)",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
+          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__interval])))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -459,11 +459,11 @@
       "id": 10,
       "type": "table",
       "title": "Top Client IPs (nginx + Traefik)",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
+          "expr": "topk(10, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
           "legendFormat": "{{remote_addr}}"
         }
       ],
@@ -481,11 +481,11 @@
       "id": 13,
       "type": "table",
       "title": "Top Cloudflare Client IPs",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (http_cf_connecting_ip) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" \\\"<host_header>\\\" \\\"<server_name>\\\" \\\"<scheme>\\\" \\\"<request_uri>\\\" \\\"<request_time>\\\" \\\"<upstream_addr>\\\" \\\"<upstream_status>\\\" \\\"<upstream_response_time>\\\" \\\"<http_x_forwarded_for>\\\" \\\"<http_cf_connecting_ip>\\\" \\\"<http_cf_ray>\\\"\" [$__range])))",
+          "expr": "topk(10, sum by (http_cf_connecting_ip) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" \\\"<host_header>\\\" \\\"<server_name>\\\" \\\"<scheme>\\\" \\\"<request_uri>\\\" \\\"<request_time>\\\" \\\"<upstream_addr>\\\" \\\"<upstream_status>\\\" \\\"<upstream_response_time>\\\" \\\"<http_x_forwarded_for>\\\" \\\"<http_cf_connecting_ip>\\\" \\\"<http_cf_ray>\\\"\" [$__interval])))",
           "legendFormat": "{{http_cf_connecting_ip}}"
         }
       ],
@@ -503,11 +503,11 @@
       "id": 11,
       "type": "table",
       "title": "Top User Agents (nginx + Traefik)",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
+          "expr": "topk(10, sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
           "legendFormat": "{{http_user_agent}}"
         }
       ],
@@ -525,11 +525,11 @@
       "id": 15,
       "type": "stat",
       "title": "Suspicious Requests",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))"
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))"
         }
       ],
       "options": {
@@ -574,11 +574,11 @@
       "id": 19,
       "type": "table",
       "title": "Top Suspicious Client IPs",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
+          "expr": "topk(15, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
           "legendFormat": "{{remote_addr}}"
         }
       ],
@@ -596,11 +596,11 @@
       "id": 16,
       "type": "table",
       "title": "Suspicious Paths",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<parsed_method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
+          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -618,7 +618,7 @@
       "id": 17,
       "type": "table",
       "title": "Traffic by Country",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
@@ -641,7 +641,7 @@
       "id": 18,
       "type": "geomap",
       "title": "Traffic Origin Map",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
@@ -717,11 +717,11 @@
       "id": 20,
       "type": "table",
       "title": "Top Traefik Routers",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (router) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
+          "expr": "topk(10, sum by (router) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
           "legendFormat": "{{router}}"
         }
       ],
@@ -739,11 +739,11 @@
       "id": 21,
       "type": "table",
       "title": "Top Traefik Paths",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
+          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
           "legendFormat": "{{request}}"
         }
       ],
@@ -761,11 +761,11 @@
       "id": 22,
       "type": "table",
       "title": "Top Traefik Status Codes",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (status) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
+          "expr": "topk(10, sum by (status) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
           "legendFormat": "{{status}}"
         }
       ],
@@ -783,11 +783,11 @@
       "id": 23,
       "type": "table",
       "title": "Top Traefik Services",
-      "datasource": "Loki",
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (service) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"^$\"} [$__range])))",
+          "expr": "topk(10, sum by (service) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
           "legendFormat": "{{service_url}}"
         }
       ],
