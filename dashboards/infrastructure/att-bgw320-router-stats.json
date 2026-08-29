@@ -67,8 +67,8 @@
         { "matcher": { "id": "byRegexp", "options": "Upload.*" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }] }
       ] },
       "targets": [
-        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_bytes=\"broadband.rx_bytes\" | unwrap rx_bytes [$__interval])) * 8 / 1e6", "refId": "A", "legendFormat": "Download - {{host}}" },
-        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_bytes=\"broadband.tx_bytes\" | unwrap tx_bytes [$__interval])) * 8 / 1e6", "refId": "B", "legendFormat": "Upload - {{host}}" }
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_bytes=\"broadband.rx_bytes\" | unwrap rx_bytes [3m])) * 8 / 1e6", "refId": "A", "legendFormat": "Download - {{host}}" },
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_bytes=\"broadband.tx_bytes\" | unwrap tx_bytes [3m])) * 8 / 1e6", "refId": "B", "legendFormat": "Upload - {{host}}" }
       ]
     },
 
@@ -77,8 +77,8 @@
       "datasource": "Loki",
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
       "targets": [
-        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_errors=\"broadband.rx_errors\" | unwrap rx_errors [$__interval]))", "refId": "A", "legendFormat": "{{host}} rx errors/s" },
-        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_errors=\"broadband.tx_errors\" | unwrap tx_errors [$__interval]))", "refId": "B", "legendFormat": "{{host}} tx errors/s" }
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_errors=\"broadband.rx_errors\" | unwrap rx_errors [3m]))", "refId": "A", "legendFormat": "{{host}} rx errors/s" },
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_errors=\"broadband.tx_errors\" | unwrap tx_errors [3m]))", "refId": "B", "legendFormat": "{{host}} tx errors/s" }
       ]
     },
     { "id": 8, "type": "timeseries", "title": "Page Response Times",
@@ -86,10 +86,10 @@
       "datasource": "Loki",
       "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
       "targets": [
-        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.sysinfo.duration_ms\" | unwrap d [$__interval]))", "refId": "A", "legendFormat": "{{host}} sysinfo" },
-        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.broadbandstatistics.duration_ms\" | unwrap d [$__interval]))", "refId": "B", "legendFormat": "{{host}} broadbandstatistics" },
-        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.fiberstat.duration_ms\" | unwrap d [$__interval]))", "refId": "C", "legendFormat": "{{host}} fiberstat" },
-        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.lanstatistics.duration_ms\" | unwrap d [$__interval]))", "refId": "D", "legendFormat": "{{host}} lanstatistics" }
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.sysinfo.duration_ms\" | unwrap d [3m]))", "refId": "A", "legendFormat": "{{host}} sysinfo" },
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.broadbandstatistics.duration_ms\" | unwrap d [3m]))", "refId": "B", "legendFormat": "{{host}} broadbandstatistics" },
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.fiberstat.duration_ms\" | unwrap d [3m]))", "refId": "C", "legendFormat": "{{host}} fiberstat" },
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.lanstatistics.duration_ms\" | unwrap d [3m]))", "refId": "D", "legendFormat": "{{host}} lanstatistics" }
       ]
     },
 
@@ -98,7 +98,7 @@
       "datasource": "Loki",
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
       "targets": [
-        { "datasource": "Loki", "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json known=\"lan.known_devices\" | unwrap known [$__interval]))", "refId": "A", "legendFormat": "{{host}}" }
+        { "datasource": "Loki", "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json known=\"lan.known_devices\" | unwrap known [3m]))", "refId": "A", "legendFormat": "{{host}}" }
       ]
     },
     { "id": 10, "type": "timeseries", "title": "LAN Active Devices",
@@ -106,7 +106,7 @@
       "datasource": "Loki",
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
       "targets": [
-        { "datasource": "Loki", "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json active=\"lan.active_devices\" | unwrap active [$__interval]))", "refId": "A", "legendFormat": "{{host}}" }
+        { "datasource": "Loki", "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json active=\"lan.active_devices\" | unwrap active [3m]))", "refId": "A", "legendFormat": "{{host}}" }
       ]
     },
     { "id": 11, "type": "stat", "title": "Fiber Link Up (samples in range)",
