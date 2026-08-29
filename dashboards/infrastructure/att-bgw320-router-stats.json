@@ -1,0 +1,141 @@
+{
+  "id": null,
+  "uid": "att-bgw320-router-stats",
+  "title": "AT&T BGW320-500 Router Stats",
+  "description": "bgw-monitor collections from the AT&T HUMAX BGW320-500 router, shipped via Promtail from raspberrypi-dev/raspberrypi-prod to Loki.",
+  "tags": ["infrastructure", "logs", "loki", "raspberry", "att", "router"],
+  "timezone": "browser",
+  "schemaVersion": 42,
+  "version": 1,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "host",
+        "label": "Host",
+        "type": "query",
+        "datasource": "Loki",
+        "query": "label_values({job=\"bgw-monitor\"}, host)",
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "panels": [
+    { "id": 1, "type": "stat", "title": "Successful Collections",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }] } }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "sum(count_over_time({job=\"bgw-monitor\", host=~\"$host\", success=\"true\"}[$__range]))", "refId": "A" }
+      ]
+    },
+    { "id": 2, "type": "stat", "title": "Failed Collections",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "sum(count_over_time({job=\"bgw-monitor\", host=~\"$host\", success=\"false\"}[$__range]))", "refId": "A" }
+      ]
+    },
+    { "id": 3, "type": "stat", "title": "Avg Collection Duration",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 10000 }, { "color": "red", "value": 30000 }] } }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "avg(avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json duration_ms=\"duration_ms\" | unwrap duration_ms [$__range]))", "refId": "A" }
+      ]
+    },
+    { "id": 4, "type": "stat", "title": "Gateway Uptime (latest)",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }] } }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json uptime=\"gateway.uptime_seconds\" | unwrap uptime [$__range]))", "refId": "A", "instant": true, "legendFormat": "{{host}}" }
+      ]
+    },
+
+    { "id": 5, "type": "timeseries", "title": "Broadband RX Throughput",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_bytes=\"broadband.rx_bytes\" | unwrap rx_bytes [$__interval]))", "refId": "A", "legendFormat": "{{host}}" }
+      ]
+    },
+    { "id": 6, "type": "timeseries", "title": "Broadband TX Throughput",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_bytes=\"broadband.tx_bytes\" | unwrap tx_bytes [$__interval]))", "refId": "A", "legendFormat": "{{host}}" }
+      ]
+    },
+
+    { "id": 7, "type": "timeseries", "title": "Broadband Errors",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_errors=\"broadband.rx_errors\" | unwrap rx_errors [$__interval]))", "refId": "A", "legendFormat": "{{host}} rx errors/s" },
+        { "datasource": "Loki", "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_errors=\"broadband.tx_errors\" | unwrap tx_errors [$__interval]))", "refId": "B", "legendFormat": "{{host}} tx errors/s" }
+      ]
+    },
+    { "id": 8, "type": "timeseries", "title": "Page Response Times",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.sysinfo.duration_ms\" | unwrap d [$__interval]))", "refId": "A", "legendFormat": "{{host}} sysinfo" },
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.broadbandstatistics.duration_ms\" | unwrap d [$__interval]))", "refId": "B", "legendFormat": "{{host}} broadbandstatistics" },
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.fiberstat.duration_ms\" | unwrap d [$__interval]))", "refId": "C", "legendFormat": "{{host}} fiberstat" },
+        { "datasource": "Loki", "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.lanstatistics.duration_ms\" | unwrap d [$__interval]))", "refId": "D", "legendFormat": "{{host}} lanstatistics" }
+      ]
+    },
+
+    { "id": 9, "type": "timeseries", "title": "LAN Known Devices",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 21 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json known=\"lan.known_devices\" | unwrap known [$__interval]))", "refId": "A", "legendFormat": "{{host}}" }
+      ]
+    },
+    { "id": 10, "type": "timeseries", "title": "LAN Active Devices",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 21 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json active=\"lan.active_devices\" | unwrap active [$__interval]))", "refId": "A", "legendFormat": "{{host}}" }
+      ]
+    },
+    { "id": 11, "type": "stat", "title": "Fiber Link Up (samples in range)",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 21 },
+      "datasource": "Loki",
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "gray", "value": null }, { "color": "green", "value": 1 }] } }, "overrides": [] },
+      "targets": [
+        { "datasource": "Loki", "expr": "sum(count_over_time({job=\"bgw-monitor\", host=~\"$host\", fiber_status=\"up\"}[$__range]))", "refId": "A" }
+      ]
+    },
+
+    { "id": 12, "type": "logs", "title": "Failed Collections (raw)",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 28 },
+      "datasource": "Loki",
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending" },
+      "targets": [
+        { "datasource": "Loki", "expr": "{job=\"bgw-monitor\", host=~\"$host\", success=\"false\"}", "refId": "A" }
+      ]
+    },
+    { "id": 13, "type": "logs", "title": "All Collections (raw stream)",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
+      "datasource": "Loki",
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending" },
+      "targets": [
+        { "datasource": "Loki", "expr": "{job=\"bgw-monitor\", host=~\"$host\"}", "refId": "A" }
+      ]
+    }
+  ]
+}
