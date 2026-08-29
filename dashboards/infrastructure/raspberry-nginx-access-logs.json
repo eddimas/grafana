@@ -2,10 +2,19 @@
   "id": null,
   "uid": "raspberry-nginx-access",
   "title": "Raspberry Pi nginx Access Logs",
-  "tags": ["infrastructure", "logs", "loki", "nginx", "raspberry"],
+  "description": "Trafico HTTP de nginx (raspberrypi-dev/prod) y Traefik (traefik-v2), rediseñado: resumen ejecutivo, rankings agregados por rango (no series por intervalo), tabla de eventos individuales, y paneles de seguridad/errores.",
+  "tags": [
+    "infrastructure",
+    "logs",
+    "loki",
+    "nginx",
+    "traefik",
+    "raspberry",
+    "security"
+  ],
   "timezone": "browser",
   "schemaVersion": 42,
-  "version": 3,
+  "version": 1,
   "refresh": "30s",
   "time": {
     "from": "now-6h",
@@ -14,51 +23,23 @@
   "templating": {
     "list": [
       {
-        "name": "source",
-        "label": "Source",
-        "type": "custom",
-        "query": "nginx,traefik,all",
-        "current": {
-          "selected": true,
-          "text": "all",
-          "value": "nginx|traefik"
-        },
-        "options": [
-          {
-            "selected": false,
-            "text": "nginx",
-            "value": "nginx"
-          },
-          {
-            "selected": false,
-            "text": "traefik",
-            "value": "traefik"
-          },
-          {
-            "selected": true,
-            "text": "all",
-            "value": "nginx|traefik"
-          }
-        ]
-      },
-      {
         "name": "host",
-        "label": "Host",
+        "label": "Host (nginx)",
         "type": "query",
-        "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+        "datasource": "Loki",
         "query": "label_values({job=\"nginx-access\"}, host)",
         "multi": true,
         "includeAll": true,
         "allValue": ".*",
         "current": {
           "selected": true,
-          "text": "raspberrypi-prod",
-          "value": "raspberrypi-prod"
+          "text": "All",
+          "value": "$__all"
         }
       },
       {
         "name": "method",
-        "label": "Method",
+        "label": "Método",
         "type": "custom",
         "query": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS",
         "multi": true,
@@ -67,18 +48,47 @@
         "current": {
           "selected": true,
           "text": "All",
-          "value": ".*"
+          "value": "$__all"
         }
       },
       {
-        "name": "exclude_monitoring_request_regex",
-        "type": "constant",
-        "hide": 2,
-        "query": ".*(/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics).*",
+        "name": "status_class",
+        "label": "Código HTTP",
+        "type": "custom",
+        "query": "2..,3..,4..,5..",
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
         "current": {
-          "selected": false,
-          "text": ".*(/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics).*",
-          "value": ".*(/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics).*"
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "country",
+        "label": "País (nginx)",
+        "type": "query",
+        "datasource": "Loki",
+        "query": "label_values({job=\"nginx-access\", http_cf_ipcountry=~\"[A-Z]{2}\"}, http_cf_ipcountry)",
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "client_ip",
+        "label": "IP de origen (regex)",
+        "type": "textbox",
+        "query": ".*",
+        "current": {
+          "selected": true,
+          "text": ".*",
+          "value": ".*"
         }
       },
       {
@@ -87,20 +97,16 @@
         "hide": 2,
         "query": ".*(tlanexli|grafana|prometheus|loki|alloy|monitor).*",
         "current": {
-          "selected": false,
-          "text": ".*(tlanexli|grafana|prometheus|loki|alloy|monitor).*",
           "value": ".*(tlanexli|grafana|prometheus|loki|alloy|monitor).*"
         }
       },
       {
-        "name": "exclude_monitoring_line_regex",
+        "name": "exclude_monitoring_request_regex",
         "type": "constant",
         "hide": 2,
-        "query": ".*(tlanexli|/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics|grafana|prometheus|loki|alloy).*",
+        "query": ".*(/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics).*",
         "current": {
-          "selected": false,
-          "text": ".*(tlanexli|/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics|grafana|prometheus|loki|alloy).*",
-          "value": ".*(tlanexli|/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics|grafana|prometheus|loki|alloy).*"
+          "value": ".*(/api/ds/query|/api/login/ping|/api/live/ws|/api/annotations|/api/plugins|/api/prometheus/|/api/datasources/uid/.*/resources/label/|/apis/|dashboardUID=raspberry-nginx-access|/loki/api/v1/|/ready|/metrics).*"
         }
       }
     ]
@@ -109,724 +115,1111 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "Total Requests",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "title": "Solicitudes Totales",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[$__range]))",
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"}[5m]))"
+          "legendFormat": "nginx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"[$__range]))",
+          "refId": "B",
+          "legendFormat": "traefik"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
+          "calcs": [
+            "sum"
+          ]
         },
-        "graphMode": "none",
-        "colorMode": "background"
+        "textMode": "value_and_name"
       },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0
-        }
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      }
+      "description": "Muestra nginx y traefik por separado (formatos distintos, no se fusionan en un solo número)."
     },
     {
       "id": 2,
       "type": "stat",
-      "title": "4xx Requests",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "title": "Solicitudes/seg (actual)",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 3,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
+          "datasource": "Loki",
+          "expr": "sum(rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[2m]))",
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"4..\"} [$__range]))"
+          "instant": true,
+          "legendFormat": "nginx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"[2m]))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "traefik"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
+          "calcs": [
+            "sum"
+          ]
         },
-        "graphMode": "none",
-        "colorMode": "background"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              }
-            ]
-          }
-        }
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 0
+        "textMode": "value_and_name"
       }
     },
     {
       "id": 3,
       "type": "stat",
-      "title": "5xx Requests",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "title": "IPs de Clientes Únicas",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
+          "datasource": "Loki",
+          "expr": "count(count by (real_ip) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[$__range])))",
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"5..\"} [$__range]))"
+          "instant": true
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
+          "calcs": [
+            "sum"
+          ]
         },
-        "graphMode": "none",
-        "colorMode": "background"
+        "textMode": "value_and_name"
       },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 5
-              }
-            ]
-          }
-        }
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 0
-      }
+      "description": "Solo nginx: es la única fuente con IPs de cliente externas confiables en este cluster (ver limitaciones)."
     },
     {
       "id": 4,
       "type": "stat",
-      "title": "Unique Client IPs",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "title": "Respuestas 2xx",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 9,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`2..`[$__range]))",
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range]))"
+          "legendFormat": "nginx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"| req_status=~`2..`[$__range]))",
+          "refId": "B",
+          "legendFormat": "traefik"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
+          "calcs": [
+            "sum"
+          ]
         },
-        "graphMode": "none"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0
-        }
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 0
+        "textMode": "value_and_name"
       }
     },
     {
       "id": 5,
-      "type": "timeseries",
-      "title": "Requests per Second",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\"} [$__interval]))",
-          "legendFormat": "nginx {{host}}"
-        },
-        {
-          "refId": "B",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\"} [$__interval])) * 0",
-          "legendFormat": "traefik {{router}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "min": 0,
-          "color": {
-            "mode": "palette-classic"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "red",
-                "value": 100
-              }
-            ]
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 18,
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 17
-      }
-    },
-    {
-      "id": 6,
-      "type": "timeseries",
-      "title": "4xx per Second",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"4..\"} [$__interval]))",
-          "legendFormat": "nginx {{host}}"
-        },
-        {
-          "refId": "B",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\"} [$__interval])) * 0",
-          "legendFormat": "traefik {{router}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "min": 0,
-          "color": {
-            "mode": "palette-classic"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 10
-              }
-            ]
-          },
-          "custom": {
-            "drawStyle": "bars",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 70,
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 17
-      }
-    },
-    {
-      "id": 12,
-      "type": "timeseries",
-      "title": "5xx per Second",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\", status=~\"5..\"} [$__interval]))",
-          "legendFormat": "nginx {{host}}"
-        },
-        {
-          "refId": "B",
-          "expr": "sum by (host) (rate({job=\"nginx-access\", host=~\"${host:regex}\"} [$__interval])) * 0",
-          "legendFormat": "traefik {{router}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "min": 0,
-          "color": {
-            "mode": "palette-classic"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 5
-              },
-              {
-                "color": "red",
-                "value": 20
-              }
-            ]
-          },
-          "custom": {
-            "drawStyle": "bars",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 70,
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 17
-      }
-    },
-    {
-      "id": 9,
-      "type": "table",
-      "title": "Top Request Paths (nginx + Traefik)",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__interval])))",
-          "legendFormat": "{{request}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 25
-      }
-    },
-    {
-      "id": 10,
-      "type": "table",
-      "title": "Top Client IPs (nginx + Traefik)",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
-          "legendFormat": "{{remote_addr}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 25
-      }
-    },
-    {
-      "id": 13,
-      "type": "table",
-      "title": "Top Cloudflare Client IPs",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (http_cf_connecting_ip) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\" \\\"<host_header>\\\" \\\"<server_name>\\\" \\\"<scheme>\\\" \\\"<request_uri>\\\" \\\"<request_time>\\\" \\\"<upstream_addr>\\\" \\\"<upstream_status>\\\" \\\"<upstream_response_time>\\\" \\\"<http_x_forwarded_for>\\\" \\\"<http_cf_connecting_ip>\\\" \\\"<http_cf_ray>\\\"\" [$__interval])))",
-          "legendFormat": "{{http_cf_connecting_ip}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 25
-      }
-    },
-    {
-      "id": 11,
-      "type": "table",
-      "title": "Top User Agents (nginx + Traefik)",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (http_user_agent) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" [$__range])))",
-          "legendFormat": "{{http_user_agent}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 33
-      }
-    },
-    {
-      "id": 15,
       "type": "stat",
-      "title": "Suspicious Requests",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "title": "Respuestas 4xx",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`4..`[$__range]))",
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range]))"
+          "legendFormat": "nginx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"| req_status=~`4..`[$__range]))",
+          "refId": "B",
+          "legendFormat": "traefik"
         }
       ],
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "values": false
+          "calcs": [
+            "sum"
+          ]
         },
-        "graphMode": "none",
-        "colorMode": "background"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 10
-              },
-              {
-                "color": "red",
-                "value": 25
-              }
-            ]
-          }
-        }
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 8,
-        "x": 16,
-        "y": 5
+        "textMode": "value_and_name"
       }
     },
     {
-      "id": 19,
-      "type": "table",
-      "title": "Top Suspicious Client IPs",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "id": 6,
+      "type": "stat",
+      "title": "Respuestas 5xx",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 15,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`5..`[$__range]))",
           "refId": "A",
-          "expr": "topk(15, sum by (remote_addr) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
-          "legendFormat": "{{remote_addr}}"
+          "legendFormat": "nginx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"| req_status=~`5..`[$__range]))",
+          "refId": "B",
+          "legendFormat": "traefik"
         }
       ],
       "options": {
-        "showHeader": true
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ]
+        },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Solicitudes Sospechosas",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 18,
+        "y": 0
       },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| request =~ `.*(\\.env|\\.git|wp-login\\.php|wp-admin|xmlrpc\\.php|phpmyadmin|\\.\\.%2f|\\.\\./|/etc/passwd|/vendor/|/\\.well-known/pki-validation|/administrator|/console|/actuator|/debug|\\.sql$|\\.bak$).*`[$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ]
+        },
+        "textMode": "value_and_name"
+      },
+      "description": "Rutas de escaneo/ataque conocidas en nginx. robots.txt nunca se clasifica como ataque."
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Latencia p95 Traefik (ms)",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 21,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max(quantile_over_time(0.95, {namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json duration_ns=\"Duration\" | unwrap duration_ns [1h])) / 1e6",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ]
+        },
+        "textMode": "value_and_name"
+      },
+      "description": "p95 de la última hora (ventana fija, no todo el rango, para mantener la consulta liviana). nginx no se incluye: request_time es 0.000s en casi todas las líneas observadas."
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Solicitudes por Segundo",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[3m]))",
+          "refId": "A",
+          "legendFormat": "nginx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"[3m]))",
+          "refId": "B",
+          "legendFormat": "traefik"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "bargauge",
+      "title": "Distribución de Códigos HTTP (nginx)",
+      "description": "Totales del rango seleccionado. Solo nginx: es la fuente de tráfico externo real; la distribución de traefik está en su propia tabla (Fila 4), ya que su tráfico observado es mayormente interno del cluster.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "continuous-GrYlRd"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`2..`[$__range]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "2xx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`3..`[$__range]))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "3xx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`4..`[$__range]))",
+          "refId": "C",
+          "instant": true,
+          "legendFormat": "4xx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`5..`[$__range]))",
+          "refId": "D",
+          "instant": true,
+          "legendFormat": "5xx"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Consultas Recibidas",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "0"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Codigo"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "2..",
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "3..",
+                      "result": {
+                        "color": "blue"
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "4..",
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "5..",
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"nginx-access\", host=~\"$host\", method=~\"$method\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\" | label_format source_type=`nginx`, pais=`{{.http_cf_ipcountry}}`, dominio=`{{.host_header}}`, ruta=`{{.request}}`, tamano_bytes=`{{.body_bytes_sent}}`, req_time_s=`{{.request_time}}`, user_agent=`{{.http_user_agent}}`, ip=`{{.real_ip}}`",
+          "refId": "A"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "{namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\" | label_format source_type=`traefik`, pais=`{{.country}}`, dominio=`{{.req_host}}`, ruta=`{{.path}}`, tamano_bytes=`{{.resp_size}}`, duration_ms=`{{ div .duration_ns 1000000 }}`, user_agent=`{{.ua}}`, ip=`{{.real_ip}}`, method=`{{.req_method}}`, status=`{{.req_status}}`",
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Time",
+            "desc": true
+          }
+        ]
+      },
+      "description": "Eventos individuales mas recientes de nginx y traefik combinados, mas nuevo primero. 'ip' es la IP real del cliente para nginx (ver limitaciones sobre traefik: en la practica casi siempre es una IP interna del cluster, no un visitante externo).",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Line": true,
+              "tsNs": true,
+              "id": true,
+              "labels": true,
+              "job": true,
+              "filename": true,
+              "source": true,
+              "service": true,
+              "service_name": true,
+              "log_type": true,
+              "environment": true,
+              "level": true,
+              "container": true,
+              "namespace": true,
+              "pod": true,
+              "entryPointName": true,
+              "jsonpart": true,
+              "router": true,
+              "svc": true,
+              "remote_addr": true,
+              "remote_user": true,
+              "time_local": true,
+              "http_referer": true,
+              "protocol": true,
+              "scheme": true,
+              "server_name": true,
+              "request_uri": true,
+              "upstream_addr": true,
+              "upstream_status": true,
+              "upstream_response_time": true,
+              "http_x_forwarded_for": true,
+              "http_cf_connecting_ip": true,
+              "http_cf_ray": true,
+              "http_cf_ipcountry": true,
+              "host_header": true,
+              "request": true,
+              "body_bytes_sent": true,
+              "request_time": true,
+              "http_user_agent": true,
+              "real_ip": true,
+              "req_host": true,
+              "path": true,
+              "resp_size": true,
+              "duration_ns": true,
+              "ua": true,
+              "country": true,
+              "req_method": true,
+              "req_status": true,
+              "host": true,
+              "method_extracted": true,
+              "status_extracted": true,
+              "http_cf_ipcountry_extracted": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "ip": "IP",
+              "pais": "Pais",
+              "source_type": "Fuente",
+              "dominio": "Host",
+              "method": "Metodo",
+              "ruta": "Ruta",
+              "status": "Codigo",
+              "tamano_bytes": "Tamano (B)",
+              "req_time_s": "Duracion nginx (s)",
+              "duration_ms": "Duracion traefik (ms)",
+              "user_agent": "User-Agent"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Top IPs de Origen (nginx)",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (real_ip) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[$__range])))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "Total"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (real_ip) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`4..`[$__range])))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "4xx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (real_ip) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`5..`[$__range])))",
+          "refId": "C",
+          "instant": true,
+          "legendFormat": "5xx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (real_ip,http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[$__range])))",
+          "refId": "D",
+          "instant": true,
+          "legendFormat": "País"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Total",
+            "desc": true
+          }
+        ]
+      },
+      "description": "Una fila por IP, agregada sobre todo el rango seleccionado. País vía Cloudflare (solo disponible cuando pasa por prod).",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "real_ip": "IP",
+              "http_cf_ipcountry": "País"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "table",
+      "title": "Top Rutas Consultadas (nginx)",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 25
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (request, method) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[$__range])))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "Total"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`4..`[$__range])))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "4xx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"| status=~`5..`[$__range])))",
+          "refId": "C",
+          "instant": true,
+          "legendFormat": "5xx"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Total",
+            "desc": true
+          }
+        ]
+      },
+      "description": "Una fila por ruta, agregada sobre todo el rango seleccionado.",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "request": "Ruta",
+              "method": "Método"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "table",
+      "title": "Tráfico por País (nginx)",
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 41
-      }
+        "y": 34
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sort_desc(sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[$__range])))",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Total",
+            "desc": true
+          }
+        ]
+      },
+      "description": "Requiere el header Cloudflare CF-IPCountry (solo raspberrypi-prod). No hay coordenadas reales disponibles, por eso no se usa un mapa - ver limitaciones."
+    },
+    {
+      "id": 15,
+      "type": "table",
+      "title": "Códigos HTTP (nginx + traefik)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 34
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "0"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Codigo"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "2..",
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "3..",
+                      "result": {
+                        "color": "blue"
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "4..",
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "5..",
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "topk(20, sum by (status) (count_over_time({job=\"nginx-access\", host=~\"$host\", method=~\"$method\", http_cf_ipcountry=~\"$country|\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | real_ip =~ \"$client_ip\" | status=~\"$status_class\"[$__range])))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "nginx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(20, sum by (req_status) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"[$__range])))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "traefik"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Total",
+            "desc": true
+          }
+        ]
+      },
+      "description": "Una fila por código HTTP.",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "status": "Codigo",
+              "req_status": "Codigo"
+            }
+          }
+        }
+      ]
     },
     {
       "id": 16,
       "type": "table",
-      "title": "Suspicious Paths",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "title": "Top Traefik: Routers y Servicios",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 34
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "0"
+        },
+        "overrides": []
+      },
       "targets": [
         {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (router, svc) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"[$__range])))",
           "refId": "A",
-          "expr": "topk(15, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} | pattern \"<remote_addr> - <remote_user> [<time_local>] \\\"<method> <request> <protocol>\\\" <status> <body_bytes_sent> \\\"<http_referer>\\\" \\\"<http_user_agent>\\\"<_>\" | request =~ \".*(wp-login|xmlrpc|phpunit|[.]env|[.]git|/admin|/login|/register|/setup|/sitemap|/vendor/|/[.]well-known/pki-validation|/wp-admin|/wordpress|/administrator|/user/login|/dashboard|/account|/payment|/order|/subscribe|/shop|/plans|/signup).*\" [$__range])))",
-          "legendFormat": "{{request}}"
+          "instant": true,
+          "legendFormat": "Total"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (router) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"| req_status=~`4..`[$__range])))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "4xx"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (router) (count_over_time({namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"| req_status=~`5..`[$__range])))",
+          "refId": "C",
+          "instant": true,
+          "legendFormat": "5xx"
         }
       ],
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Total",
+            "desc": true
+          }
+        ]
       },
-      "gridPos": {
-        "h": 8,
-        "w": 16,
-        "x": 8,
-        "y": 41
-      }
+      "description": "Ya filtrado del ruido de auto-monitoreo (Grafana consultándose a sí mismo, etc.) vía las variables exclude_monitoring_*.",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "router": "Router",
+              "svc": "Servicio"
+            }
+          }
+        }
+      ]
     },
     {
       "id": 17,
-      "type": "table",
-      "title": "Traffic by Country",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sort_desc(sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range])))",
-          "legendFormat": "{{http_cf_ipcountry}}",
-          "instant": true
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 8,
-        "x": 16,
-        "y": 10
-      }
-    },
-    {
-      "id": 18,
-      "type": "geomap",
-      "title": "Traffic Origin Map",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (http_cf_ipcountry) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\", http_cf_ipcountry=~\"[A-Z]{2}\"}[$__range]))",
-          "legendFormat": "{{http_cf_ipcountry}}",
-          "instant": true
-        }
-      ],
-      "options": {
-        "basemap": {
-          "config": {},
-          "name": "Layer 0",
-          "type": "default"
-        },
-        "controls": {
-          "mouseWheelZoom": true,
-          "showAttribution": true,
-          "showDebug": false,
-          "showMeasure": false,
-          "showScale": false,
-          "showZoom": true
-        },
-        "layers": [
-          {
-            "filterData": {
-              "id": "byRefId",
-              "options": "A"
-            },
-            "config": {
-              "showLegend": true,
-              "style": {
-                "color": {
-                  "fixed": "dark-green"
-                },
-                "opacity": 0.8,
-                "size": {
-                  "fixed": 8,
-                  "max": 24,
-                  "min": 4
-                }
-              }
-            },
-            "location": {
-              "gazetteer": "public/gazetteer/countries.json",
-              "lookup": "http_cf_ipcountry",
-              "mode": "lookup"
-            },
-            "name": "Traffic Origins",
-            "opacity": 0.7,
-            "tooltip": true,
-            "type": "markers"
-          }
-        ],
-        "tooltip": {
-          "mode": "details"
-        },
-        "view": {
-          "allLayers": true,
-          "id": "zero",
-          "lat": 15,
-          "lon": 0,
-          "zoom": 1
-        }
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 16,
-        "x": 0,
-        "y": 5
-      }
-    },
-    {
-      "id": 20,
-      "type": "table",
-      "title": "Top Traefik Routers",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (router) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
-          "legendFormat": "{{router}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 57
-      }
-    },
-    {
-      "id": 21,
-      "type": "table",
-      "title": "Top Traefik Paths",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (request) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
-          "legendFormat": "{{request}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 57
-      }
-    },
-    {
-      "id": 22,
-      "type": "table",
-      "title": "Top Traefik Status Codes",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (status) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
-          "legendFormat": "{{status}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 65
-      }
-    },
-    {
-      "id": 23,
-      "type": "table",
-      "title": "Top Traefik Services",
-      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, sum by (service) (count_over_time({job=\"nginx-access\", host=~\"${host:regex}\"} [$__range])))",
-          "legendFormat": "{{service_url}}"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 16,
-        "x": 8,
-        "y": 65
-      }
-    },
-    {
-      "id": 14,
       "type": "logs",
-      "title": "Combined Live Log Stream",
-      "datasource": "Loki",
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "{job=\"nginx-access\", host=~\"${host:regex}\"}"
-        },
-        {
-          "refId": "B",
-          "expr": "{job=\"nginx-access\", host=~\"${host:regex}\"} |= \"__never_match__\""
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "wrapLogMessage": true,
-        "sortOrder": "Descending"
-      },
+      "title": "Solicitudes Sospechosas",
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 73
-      }
+        "y": 42
+      },
+      "datasource": "Loki",
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"nginx-access\", host=~\"$host\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | request =~ `.*(\\.env|\\.git|wp-login\\.php|wp-admin|xmlrpc\\.php|phpmyadmin|\\.\\.%2f|\\.\\./|/etc/passwd|/vendor/|/\\.well-known/pki-validation|/administrator|/console|/actuator|/debug|\\.sql$|\\.bak$).*` | line_format `{{.time_local}} | {{.real_ip}} | {{.method}} {{.request}} | {{.status}} | host={{.host_header}} | ua={{.http_user_agent}}`",
+          "refId": "A"
+        }
+      ],
+      "description": "Rutas de escaneo/ataque conocidas (.env, .git, wp-login.php, wp-admin, xmlrpc.php, phpmyadmin, traversal ../, archivos sensibles). robots.txt está deliberadamente excluido de esta lista - no se considera ataque por sí solo. Detección de frecuencia anormal de 401/403/404/429 NO implementada aquí (ver limitaciones) - usa la tabla 'Top IPs' de arriba para detectar repetidores."
+    },
+    {
+      "id": 18,
+      "type": "logs",
+      "title": "Errores Recientes (5xx)",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "datasource": "Loki",
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"nginx-access\", host=~\"$host\"} | regexp `^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<time_local>[^\\]]+)\\] \"(?P<method>\\S+) (?P<request>[^ ]+) (?P<protocol>[^\"]+)\" (?P<status>\\d{3}) (?P<body_bytes_sent>\\d+) \"(?P<http_referer>[^\"]*)\" \"(?P<http_user_agent>[^\"]*)\"(?: \"(?P<host_header>[^\"]*)\" \"(?P<server_name>[^\"]*)\" \"(?P<scheme>[^\"]*)\" \"(?P<request_uri>[^\"]*)\" \"(?P<request_time>[^\"]*)\" \"(?P<upstream_addr>[^\"]*)\" \"(?P<upstream_status>[^\"]*)\" \"(?P<upstream_response_time>[^\"]*)\" \"(?P<http_x_forwarded_for>[^\"]*)\" \"(?P<http_cf_connecting_ip>[^\"]*)\" \"(?P<http_cf_ray>[^\"]*)\"(?: \"(?P<http_cf_ipcountry>[^\"]*)\")?)?$` | label_format real_ip=`{{if and .http_cf_connecting_ip (ne .http_cf_connecting_ip \"-\")}}{{.http_cf_connecting_ip}}{{else if and .http_x_forwarded_for (ne .http_x_forwarded_for \"-\")}}{{.http_x_forwarded_for}}{{else}}{{.remote_addr}}{{end}}` | status =~ \"5..\" | line_format `{{.time_local}} | nginx | {{.real_ip}} | {{.method}} {{.request}} | {{.status}} | host={{.host_header}} | upstream={{.upstream_addr}} upstream_status={{.upstream_status}}`",
+          "refId": "A"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "{namespace=\"traefik-v2\", container=\"traefik\"} |= \"RouterName\" | regexp `(?P<jsonpart>\\{.*)` | line_format `{{ .jsonpart }}` | json router=\"RouterName\", svc=\"ServiceName\", req_method=\"RequestMethod\", path=\"RequestPath\", req_status=\"DownstreamStatus\", req_host=\"RequestHost\", real_ip=\"ClientHost\", ua=`[\"request_User-Agent\"]`, country=`[\"request_Cf-Ipcountry\"]`, resp_size=\"DownstreamContentSize\", duration_ns=\"Duration\" | router !~ \"$exclude_monitoring_router_regex\" | path !~ \"$exclude_monitoring_request_regex\" | req_method=~\"$method\" | real_ip =~ \"$client_ip\" | req_status=~\"$status_class\" | country=~\"$country|\"| req_status=~\"5..\" | line_format `{{.time}} | traefik | {{.real_ip}} | {{.req_method}} {{.path}} | {{.req_status}} | router={{.router}} svc={{.svc}}`",
+          "refId": "B"
+        }
+      ],
+      "description": "Limitado a respuestas 5xx reales de nginx y traefik (errores de proxy/upstream/servidor)."
     }
   ]
 }
