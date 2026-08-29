@@ -1,0 +1,389 @@
+{
+  "id": null,
+  "uid": "linksys-mr9600",
+  "title": "Linksys MR9600",
+  "description": "Estadisticas del router mesh Linksys MR9600 (192.168.3.1) via JNAP, recolectadas por linksys-monitor en raspberrypi-dev/prod y enviadas a Loki via Promtail.",
+  "tags": [
+    "infrastructure",
+    "logs",
+    "loki",
+    "linksys",
+    "raspberry",
+    "router"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 42,
+  "version": 1,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "host",
+        "label": "Host",
+        "type": "query",
+        "datasource": "Loki",
+        "query": "label_values({job=\"linksys-monitor\"}, host)",
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "WAN Status",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "Down",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "gray",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"linksys-monitor\", host=~\"$host\", wan_status=\"up\"}[$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value_and_name"
+      },
+      "description": "Cuenta de muestras con wan_status=up en el rango. 'Down' (sin datos) significa que no hubo ninguna muestra 'up'."
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Info del Router",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"linksys-monitor\", host=~\"$host\"} | json manufacturer=\"router.manufacturer\", model=\"router.model\", firmware=\"router.firmware\" | line_format `{{.manufacturer}} {{.model}} - fw {{.firmware}}`",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Line": false,
+              "job": true,
+              "filename": true,
+              "source": true,
+              "service": true,
+              "service_name": true,
+              "log_type": true,
+              "environment": true,
+              "level": true,
+              "success": true,
+              "wan_status": true
+            },
+            "renameByName": {
+              "Line": "Router",
+              "host": "Host"
+            }
+          }
+        }
+      ],
+      "description": "Ultima linea vista por host, mostrando fabricante/modelo/firmware."
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Dispositivos Conocidos",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json k=\"lan.known_devices\" | unwrap k [3m]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "{{host}}"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Dispositivos Activos",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json a=\"lan.active_devices\" | unwrap a [3m]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "{{host}}"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Cableados",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json w=\"lan.wired\" | unwrap w [3m]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "{{host}}"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Dispositivos Conocidos / Activos",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json k=\"lan.known_devices\" | unwrap k [3m]))",
+          "refId": "A",
+          "legendFormat": "{{host}} conocidos"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json a=\"lan.active_devices\" | unwrap a [3m]))",
+          "refId": "B",
+          "legendFormat": "{{host}} activos"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Dispositivos por Banda",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json w=\"lan.wired\" | unwrap w [3m]))",
+          "refId": "A",
+          "legendFormat": "{{host}} cableado"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json w24=\"lan.wireless_24ghz\" | unwrap w24 [3m]))",
+          "refId": "B",
+          "legendFormat": "{{host}} 2.4GHz"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json w5=\"lan.wireless_5ghz\" | unwrap w5 [3m]))",
+          "refId": "C",
+          "legendFormat": "{{host}} 5GHz"
+        }
+      ],
+      "description": "wired + 2.4GHz + 5GHz puede ser ligeramente menor que 'Dispositivos Conocidos': el router a veces reporta un dispositivo inalambrico sin banda utilizable."
+    },
+    {
+      "id": 8,
+      "type": "logs",
+      "title": "Colecciones Recientes (raw)",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "datasource": "Loki",
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"linksys-monitor\", host=~\"$host\"}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
