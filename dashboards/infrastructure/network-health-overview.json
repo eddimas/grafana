@@ -1,0 +1,376 @@
+{
+  "id": null,
+  "uid": "network-health-overview",
+  "title": "Network Health (DNS + WiFi + ISP)",
+  "description": "Panel unico para correlacionar lentitud de red: DNS (AdGuard, Prometheus), WiFi mesh (Linksys MR9600, Loki) e Internet/ISP (AT&T BGW320, Loki). Mismo rango de tiempo en las tres fuentes para ver que se mueve primero cuando la conexion se siente lenta.",
+  "tags": [
+    "infrastructure",
+    "network",
+    "dns",
+    "adguard",
+    "linksys",
+    "att",
+    "wifi",
+    "isp"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 42,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "server",
+        "label": "AdGuard Server",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": {
+          "query": "label_values(adguard_avg_processing_time_seconds, server)",
+          "refId": "Server"
+        },
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ".*"
+        }
+      },
+      {
+        "name": "host",
+        "label": "rPi Host",
+        "type": "query",
+        "datasource": "Loki",
+        "query": "label_values({job=~\"linksys-monitor|bgw-monitor\"}, host)",
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "AdGuard DNS Up",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "refId": "A",
+          "expr": "sum(max by (server) (adguard_running{server=~\"$server\"})) or vector(0)",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false },
+        "graphMode": "none",
+        "colorMode": "background"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Linksys WAN Status",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "sum(count_over_time({job=\"linksys-monitor\", host=~\"$host\", wan_status=\"up\"}[$__range]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "Down",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "gray", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "AT&T Broadband Up",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "sum(count_over_time({job=\"bgw-monitor\", host=~\"$host\", broadband_status=\"up\"}[$__range]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "Down",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "gray", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "AT&T Broadband Errors (1h)",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "sum by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json e=\"broadband.rx_errors\" | unwrap e [1h])) + sum by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json e=\"broadband.tx_errors\" | unwrap e [1h]))",
+          "legendFormat": "{{host}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Dispositivos Activos (Linksys)",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json a=\"lan.active_devices\" | unwrap a [3m]))",
+          "legendFormat": "{{host}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0 } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value_and_name" }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Gateway Uptime (AT&T)",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "max by (host) (max_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json uptime=\"gateway.uptime_seconds\" | unwrap uptime [$__range]))",
+          "legendFormat": "{{host}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value_and_name" }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "DNS: Average Processing Time (AdGuard)",
+      "description": "Si esto sube al mismo tiempo que sientes lentitud, el DNS es (parte de) el problema.",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "refId": "A",
+          "expr": "adguard_avg_processing_time_seconds{server=~\"$server\"} * 1000",
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "min": 0 } }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Internet Throughput (AT&T WAN)",
+      "description": "Si baja mucho o se pone en cero durante la lentitud, el problema es el enlace del ISP, no tu WiFi ni el DNS.",
+      "datasource": "Loki",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "fieldConfig": {
+        "defaults": { "unit": "Mbits", "custom": { "drawStyle": "line", "fillOpacity": 10 } },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": "Download.*" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": "Upload.*" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_bytes=\"broadband.rx_bytes\" | unwrap rx_bytes [3m])) * 8 / 1e6",
+          "legendFormat": "Download - {{host}}"
+        },
+        {
+          "datasource": "Loki",
+          "refId": "B",
+          "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_bytes=\"broadband.tx_bytes\" | unwrap tx_bytes [3m])) * 8 / 1e6",
+          "legendFormat": "Upload - {{host}}"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Dispositivos Activos por Banda (Linksys)",
+      "description": "Si hay un pico de dispositivos activos (sobre todo en 2.4GHz/5GHz) justo cuando sientes lentitud, es saturacion del WiFi, no DNS ni ISP.",
+      "datasource": "Loki",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json w24=\"lan.wireless_24ghz\" | unwrap w24 [3m]))",
+          "legendFormat": "{{host}} 2.4GHz"
+        },
+        {
+          "datasource": "Loki",
+          "refId": "B",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json w5=\"lan.wireless_5ghz\" | unwrap w5 [3m]))",
+          "legendFormat": "{{host}} 5GHz"
+        },
+        {
+          "datasource": "Loki",
+          "refId": "C",
+          "expr": "max by (host) (max_over_time({job=\"linksys-monitor\", host=~\"$host\"} | json w=\"lan.wired\" | unwrap w [3m]))",
+          "legendFormat": "{{host}} cableado"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0 } }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "AT&T Gateway Page Response Times",
+      "description": "Que tan lento responde la interfaz del propio gateway AT&T. Picos aqui + WAN status en 'up' pueden indicar que el gateway esta sobrecargado, no que el internet este caido.",
+      "datasource": "Loki",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.sysinfo.duration_ms\" | unwrap d [3m]))",
+          "legendFormat": "{{host}} sysinfo"
+        },
+        {
+          "datasource": "Loki",
+          "refId": "B",
+          "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.broadbandstatistics.duration_ms\" | unwrap d [3m]))",
+          "legendFormat": "{{host}} broadbandstatistics"
+        },
+        {
+          "datasource": "Loki",
+          "refId": "C",
+          "expr": "avg by (host) (avg_over_time({job=\"bgw-monitor\", host=~\"$host\"} | json d=\"pages.lanstatistics.duration_ms\" | unwrap d [3m]))",
+          "legendFormat": "{{host}} lanstatistics"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "DNS: Top Upstreams Avg Response Time (AdGuard)",
+      "description": "Si un upstream especifico (Cloudflare/Google/Quad9) se dispara pero los demas no, cambialo de prioridad o quitalo temporalmente.",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "refId": "A",
+          "expr": "adguard_top_upstreams_avg_response_time_seconds{server=~\"$server\"} * 1000",
+          "legendFormat": "{{server}} - {{upstream}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "min": 0 } }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "AT&T Broadband Errors Rate",
+      "description": "Errores de red a nivel del enlace del ISP (no deberian moverse casi nunca). Un aumento sostenido apunta a un problema fisico/ISP, no a config.",
+      "datasource": "Loki",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "refId": "A",
+          "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json rx_errors=\"broadband.rx_errors\" | unwrap rx_errors [3m]))",
+          "legendFormat": "{{host}} rx errors/s"
+        },
+        {
+          "datasource": "Loki",
+          "refId": "B",
+          "expr": "sum by (host) (rate_counter({job=\"bgw-monitor\", host=~\"$host\"} | json tx_errors=\"broadband.tx_errors\" | unwrap tx_errors [3m]))",
+          "legendFormat": "{{host}} tx errors/s"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    }
+  ]
+}
