@@ -1,0 +1,1382 @@
+{
+  "uid": "hisense-tv",
+  "title": "Hisense TV (Google TV)",
+  "description": "Salud y red de la TV vía tv-monitor (ADB desde raspberrypi-prod → Loki). Fuente: eddimas/tv_apps.",
+  "tags": [
+    "infrastructure",
+    "logs",
+    "loki",
+    "tv",
+    "raspberry",
+    "network"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "schemaVersion": 42,
+  "version": 1,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "templating": {
+    "list": [
+      {
+        "name": "host",
+        "label": "Host",
+        "type": "query",
+        "datasource": "Loki",
+        "query": "label_values({job=\"tv-monitor\"}, host)",
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "links": [
+    {
+      "title": "Network Health",
+      "type": "link",
+      "url": "/d/network-health-overview"
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Estado actual",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "TV / ADB",
+      "description": "Recolecciones exitosas en los últimos 5 min. 'Sin respuesta' = TV apagada, IP cambiada o llave ADB no autorizada.",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": 1,
+                "to": 1000000000.0,
+                "result": {
+                  "text": "En línea"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Sin respuesta"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"tv-monitor\", host=~\"$host\", success=\"true\"}[5m]))",
+          "refId": "A",
+          "legendFormat": "",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Conexión",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 3,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "wifi": {
+                  "text": "Wi-Fi",
+                  "color": "blue"
+                },
+                "ethernet": {
+                  "text": "Cable",
+                  "color": "green"
+                },
+                "none": {
+                  "text": "Sin red",
+                  "color": "red"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum by (network) (count_over_time({job=\"tv-monitor\", host=~\"$host\"}[5m]))",
+          "refId": "A",
+          "legendFormat": "{{network}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "name",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "VPN",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 6,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "true": {
+                  "text": "Activa",
+                  "color": "green"
+                },
+                "false": {
+                  "text": "Apagada",
+                  "color": "orange"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum by (vpn) (count_over_time({job=\"tv-monitor\", host=~\"$host\"}[5m]))",
+          "refId": "A",
+          "legendFormat": "{{vpn}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "name",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Señal Wi-Fi",
+      "description": "≥ -55 excelente · -67 buena · -75 regular · peor = mala",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 9,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": -75
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "green",
+                "value": -55
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.wifi.rssi_dbm\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Enlace Wi-Fi",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 12,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 100
+              },
+              {
+                "color": "green",
+                "value": 300
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.wifi.link_mbps\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "RAM libre",
+      "description": "La TV tiene 2 GB. Por debajo de ~250 MB empieza a trabarse.",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 15,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decmbytes",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 250
+              },
+              {
+                "color": "green",
+                "value": 450
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "min(min_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"system.mem_available_mb\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Pérdida a Internet",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 18,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.internet.loss_pct\" | unwrap v | __error__=\"\" [5m]))",
+          "refId": "A",
+          "legendFormat": "",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "IP del cable",
+      "description": "La IP fija configurada en el Ethernet de la TV responde desde otro equipo. Cambia el Ethernet de la TV a DHCP.",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 21,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "—",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "OK"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 1,
+                "to": 1000000000.0,
+                "result": {
+                  "text": "CONFLICTO"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"tv-monitor\", host=~\"$host\"} | json c=\"network.ethernet.ip_conflict\" | c=\"true\" [10m]))",
+          "refId": "A",
+          "legendFormat": "",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 10,
+      "type": "row",
+      "title": "Latencia desde la TV",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": []
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Latencia promedio por destino",
+      "description": "Router alto = problema de Wi-Fi/cable local. Router bien + Internet alto = ISP o VPN.",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.gateway.avg_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "Router"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.adguard.avg_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "AdGuard"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.internet.avg_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "C",
+          "legendFormat": "Internet (1.1.1.1)"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.vpn.avg_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "D",
+          "legendFormat": "Servidor VPN"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Jitter (mdev) por destino",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line+area"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.gateway.mdev_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "Router"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.adguard.mdev_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "AdGuard"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.internet.mdev_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "C",
+          "legendFormat": "Internet (1.1.1.1)"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.vpn.mdev_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "D",
+          "legendFormat": "Servidor VPN"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Pérdida de paquetes",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.gateway.loss_pct\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "Router"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.adguard.loss_pct\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "AdGuard"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.internet.loss_pct\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "C",
+          "legendFormat": "Internet (1.1.1.1)"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"ping.vpn.loss_pct\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "D",
+          "legendFormat": "Servidor VPN"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "DNS y ADB",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fallas DNS (5m)"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({job=\"tv-monitor\", host=~\"$host\"} | json d=\"dns_ok\" | d=\"false\" [5m]))",
+          "refId": "A",
+          "legendFormat": "Fallas DNS (5m)"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"tv.connect_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "Conexión ADB (ms)"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"duration_ms\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "C",
+          "legendFormat": "Duración recolección (ms)"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "row",
+      "title": "Wi-Fi y cable",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "panels": []
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Señal y velocidad de enlace Wi-Fi",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Enlace (Mbits/s)"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "unit",
+                "value": "Mbits"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Señal (dBm)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dBm"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.wifi.rssi_dbm\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "Señal (dBm)"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.wifi.link_mbps\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "Enlace (Mbits/s)"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 17,
+      "type": "timeseries",
+      "title": "Ethernet: velocidad negociada",
+      "description": "Vacío = sin cable. 10 Mbits/s o half-duplex = cable/puerto dañado (debería ser 100 full).",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.ethernet.speed_mbps\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "Velocidad (Mbits/s)"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Tráfico por interfaz",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 31
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.wlan0.rx_bytes\" | unwrap v | __error__=\"\" [3m])) * 8",
+          "refId": "A",
+          "legendFormat": "Wi-Fi ↓"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.wlan0.tx_bytes\" | unwrap v | __error__=\"\" [3m])) * 8",
+          "refId": "B",
+          "legendFormat": "Wi-Fi ↑"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.eth0.rx_bytes\" | unwrap v | __error__=\"\" [3m])) * 8",
+          "refId": "C",
+          "legendFormat": "Cable ↓"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.eth0.tx_bytes\" | unwrap v | __error__=\"\" [3m])) * 8",
+          "refId": "D",
+          "legendFormat": "Cable ↑"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.tun0.rx_bytes\" | unwrap v | __error__=\"\" [3m])) * 8",
+          "refId": "E",
+          "legendFormat": "VPN ↓"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.tun0.tx_bytes\" | unwrap v | __error__=\"\" [3m])) * 8",
+          "refId": "F",
+          "legendFormat": "VPN ↑"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Errores y descartes de interfaz (por segundo)",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.wlan0.rx_errors\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "Wi-Fi rx_errors"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.wlan0.tx_errors\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "Wi-Fi tx_errors"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.wlan0.rx_dropped\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "C",
+          "legendFormat": "Wi-Fi rx_dropped"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.eth0.rx_errors\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "D",
+          "legendFormat": "Cable rx_errors"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.eth0.tx_errors\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "E",
+          "legendFormat": "Cable tx_errors"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate_counter({job=\"tv-monitor\", host=~\"$host\"} | json v=\"network.interfaces.eth0.rx_dropped\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "F",
+          "legendFormat": "Cable rx_dropped"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "row",
+      "title": "Sistema de la TV",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "panels": []
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Memoria",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decmbytes",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "min(min_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"system.mem_available_mb\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "RAM disponible"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"system.swap_used_mb\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "Swap usado"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "Carga y almacenamiento",
+      "description": "",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Almacenamiento usado %"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "avg(avg_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"system.load1\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "A",
+          "legendFormat": "Load 1m"
+        },
+        {
+          "datasource": "Loki",
+          "expr": "max(max_over_time({job=\"tv-monitor\", host=~\"$host\"} | json v=\"system.storage_used_pct\" | unwrap v | __error__=\"\" [3m]))",
+          "refId": "B",
+          "legendFormat": "Almacenamiento usado %"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 23,
+      "type": "logs",
+      "title": "App en primer plano / estado",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 48
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"tv-monitor\", host=~\"$host\"} | json app=\"tv.foreground_app\", state=\"tv.state\", net=\"network.active\", vpn=\"vpn.active\" | line_format \"{{.state}} · {{.app}} · red={{.net}} · vpn={{.vpn}}\"",
+          "refId": "A",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "consecutive"
+      }
+    },
+    {
+      "id": 24,
+      "type": "logs",
+      "title": "Recolecciones fallidas",
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 48
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"tv-monitor\", host=~\"$host\", success=\"false\"} | json err=\"error\", adb=\"tv.adb\" | line_format \"[{{.adb}}] {{.err}}\"",
+          "refId": "A",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ]
+}
